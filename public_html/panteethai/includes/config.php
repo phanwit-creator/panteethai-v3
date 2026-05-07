@@ -3,7 +3,9 @@
 // PanteeThai.com v3
 
 // Load .env file
-$cfg = parse_ini_file(__DIR__ . '/../../../.env');
+// $cfg = parse_ini_file(__DIR__ . '/../../../.env');
+$cfg = parse_ini_file(__DIR__ . '/../../.env');
+
 if (!$cfg) {
     error_log('Cannot load .env file');
     die('Configuration error');
