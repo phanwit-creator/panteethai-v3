@@ -25,6 +25,13 @@ define('APP_ENV',   $cfg['APP_ENV']);
 define('APP_DEBUG', $cfg['APP_DEBUG']);
 define('APP_URL',   $cfg['APP_URL']);
 
+// Admin auth (set ADMIN_USER + ADMIN_PASS_HASH in .env via: php -r "echo password_hash('yourpass', PASSWORD_DEFAULT);")
+define('ADMIN_USER',      $cfg['ADMIN_USER']      ?? '');
+define('ADMIN_PASS_HASH', $cfg['ADMIN_PASS_HASH'] ?? '');
+
+// CRON secret for tat-sync.php HTTP access
+define('CRON_SECRET', $cfg['CRON_SECRET'] ?? '');
+
 // Error handling
 if (APP_ENV === 'production') {
     ini_set('display_errors', 0);

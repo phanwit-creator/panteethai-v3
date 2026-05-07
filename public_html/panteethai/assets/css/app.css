@@ -1,0 +1,272 @@
+/* PanteeThai.com v3 — Custom styles */
+
+/* ---- Leaflet overrides ---- */
+
+.leaflet-popup-content-wrapper {
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    font-family: 'Sarabun', sans-serif;
+    font-size: 14px;
+}
+
+.leaflet-popup-content {
+    margin: 12px 16px;
+    line-height: 1.6;
+}
+
+.leaflet-popup-content b {
+    color: #1a1a1a;
+    font-size: 15px;
+}
+
+.leaflet-popup-content a {
+    color: #16a34a;
+    text-decoration: none;
+}
+
+.leaflet-popup-content a:hover {
+    text-decoration: underline;
+}
+
+.leaflet-popup-tip {
+    box-shadow: none;
+}
+
+.leaflet-control-zoom a {
+    border-radius: 8px !important;
+    font-size: 16px;
+    line-height: 28px;
+}
+
+.leaflet-control-zoom {
+    border: none !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+.leaflet-bar a {
+    border-radius: 8px !important;
+}
+
+/* Cluster marker overrides */
+.marker-cluster-small,
+.marker-cluster-medium,
+.marker-cluster-large {
+    background-color: rgba(22, 163, 74, 0.3);
+}
+
+.marker-cluster-small div,
+.marker-cluster-medium div,
+.marker-cluster-large div {
+    background-color: rgba(22, 163, 74, 0.7);
+    color: #fff;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+/* ---- Map containers ---- */
+
+#map {
+    width: 100%;
+    background: #f0f4f0;
+}
+
+#place-map {
+    width: 100%;
+    background: #f0f4f0;
+}
+
+/* ---- Search autocomplete ---- */
+
+.search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    z-index: 2000;
+    max-height: 320px;
+    overflow-y: auto;
+    margin-top: 4px;
+}
+
+.search-result-item {
+    padding: 10px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid #f3f4f6;
+    transition: background 0.1s;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
+}
+
+.search-result-item:hover {
+    background: #f0fdf4;
+}
+
+.search-result-item .result-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.search-result-item .result-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: #111827;
+}
+
+.search-result-item .result-sub {
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+/* ---- Cards ---- */
+
+.place-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    transition: box-shadow 0.15s, transform 0.15s;
+}
+
+.place-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-1px);
+}
+
+/* ---- Loading spinner ---- */
+
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #d1fae5;
+    border-top-color: #16a34a;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ---- Admin styles ---- */
+
+.admin-sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: #1f2937;
+    min-height: 100vh;
+}
+
+.admin-sidebar a {
+    display: block;
+    padding: 10px 20px;
+    color: #d1d5db;
+    font-size: 14px;
+    transition: background 0.1s, color 0.1s;
+    border-radius: 6px;
+    margin: 2px 8px;
+}
+
+.admin-sidebar a:hover,
+.admin-sidebar a.active {
+    background: #374151;
+    color: #fff;
+}
+
+.admin-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    padding: 20px;
+}
+
+.admin-stat {
+    text-align: center;
+}
+
+.admin-stat .value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #16a34a;
+}
+
+.admin-stat .label {
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: 2px;
+}
+
+/* ---- Table ---- */
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.data-table th {
+    background: #f9fafb;
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.data-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #f3f4f6;
+    color: #4b5563;
+    vertical-align: middle;
+}
+
+.data-table tr:hover td {
+    background: #f9fafb;
+}
+
+/* ---- Badges ---- */
+
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.badge-green  { background: #dcfce7; color: #15803d; }
+.badge-red    { background: #fee2e2; color: #b91c1c; }
+.badge-yellow { background: #fef9c3; color: #a16207; }
+.badge-gray   { background: #f3f4f6; color: #6b7280; }
+.badge-blue   { background: #dbeafe; color: #1d4ed8; }
+
+/* ---- Prose article ---- */
+
+.prose p { margin-bottom: 1em; }
+.prose h2 { font-size: 1.25rem; font-weight: 700; margin: 1.5em 0 0.5em; color: #111827; }
+.prose h3 { font-size: 1.1rem; font-weight: 600; margin: 1.25em 0 0.4em; color: #1f2937; }
+.prose ul { list-style: disc; padding-left: 1.25em; margin-bottom: 1em; }
+.prose ol { list-style: decimal; padding-left: 1.25em; margin-bottom: 1em; }
+.prose li { margin-bottom: 0.25em; }
+
+/* ---- Utilities ---- */
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.sticky-panel {
+    position: sticky;
+    top: 1rem;
+}
