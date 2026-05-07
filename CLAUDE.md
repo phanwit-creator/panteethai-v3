@@ -136,23 +136,30 @@ APP_DEBUG=true
 APP_URL=https://dev.panteethai.com
 
 ## CURRENT SPRINT STATUS
-Current Sprint: Sprint 0 (Pre-Development)
-Status: In Progress
+Current Sprint: Sprint 1 (Foundation) — In Progress
+Status: Core files committed, waiting for dev.panteethai.com SSL
 
 Completed:
 - [x] Master Plan v3 created
-- [x] Server selected (RH-Neptune)
-- [x] DB schema designed
+- [x] Server selected (RH-Neptune) + migrated
+- [x] DB schema designed (db-schema.sql)
 - [x] GitHub repo setup (panteethai-v3)
 - [x] Local clone ready (~/Desktop/panteethai-v3)
-- [x] .gitignore created
+- [x] .gitignore + CLAUDE.md created
 - [x] Claude Project setup
+- [x] TAT API key registered
+- [x] Maptiler API key registered
+- [x] Folder structure created (27 files)
+- [x] Core PHP files: config.php, db.php, tat.php, seo.php
+- [x] APIs: places.php, search.php, nearby.php
+- [x] Frontend: map.js, search.js, route.js
+- [x] index.php, province/index.php, sitemap.php, robots.txt, .htaccess
 
 In Progress:
-- [ ] TAT API key registration
-- [ ] Maptiler Cloud registration
-- [ ] Server migration (HostNeverDie support)
-- [ ] dev.panteethai.com subdomain setup
+- [ ] dev.panteethai.com SSL (HostNeverDie support กำลังดำเนินการ)
+- [ ] MariaDB panteethai_new database setup
+- [ ] Deploy ไป dev.panteethai.com
+- [ ] ทดสอบ PHP 8.2 + MariaDB ทุก feature
 
 ## USEFUL COMMANDS
 Local dev: php -S localhost:8000 -t public_html/panteethai/
