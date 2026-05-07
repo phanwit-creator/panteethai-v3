@@ -1,0 +1,20 @@
+# robots.txt — PanteeThai.com v3
+# อัปเดต: พฤษภาคม 2026
+
+User-agent: *
+Allow: /
+
+# ปิดกั้น internal paths
+Disallow: /admin/
+Disallow: /api/
+Disallow: /includes/
+Disallow: /logs/
+Disallow: /cache/
+
+# ปิดกั้น query strings ที่ไม่จำเป็น
+Disallow: /*?*debug=
+Disallow: /*?*test=
+
+# Sitemap
+Sitemap: https://panteethai.com/sitemap.xml
+Sitemap: https://dev.panteethai.com/sitemap.xml

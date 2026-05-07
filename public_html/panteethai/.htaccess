@@ -1,0 +1,57 @@
+# PanteeThai.com v3 — Apache URL Rewrite Rules
+
+Options -Indexes
+RewriteEngine On
+
+# Force HTTPS
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# ---- Clean URLs ----
+
+# Province page
+# /province/chiang-mai → /province/index.php?slug=chiang-mai
+RewriteRule ^province/([a-z0-9-]+)/?$ province/index.php?slug=$1 [L,QSA]
+
+# Province tab
+# /province/bangkok/places → /province/index.php?slug=bangkok&tab=places
+RewriteRule ^province/([a-z0-9-]+)/([a-z]+)/?$ province/index.php?slug=$1&tab=$2 [L,QSA]
+
+# Place detail
+# /place/wat-phra-kaew → /place/index.php?slug=wat-phra-kaew
+RewriteRule ^place/([a-z0-9-]+)/?$ place/index.php?slug=$1 [L,QSA]
+
+# Blog article
+# /blog/travel-guide-chiangmai → /blog/article.php?slug=travel-guide-chiangmai
+RewriteRule ^blog/([a-z0-9-]+)/?$ blog/article.php?slug=$1 [L,QSA]
+
+# Search
+# /search?q=เชียงใหม่ → search.php?q=เชียงใหม่
+RewriteRule ^search/?$ search.php [L,QSA]
+
+# Distance calculator
+RewriteRule ^distance-calculator/?$ route.php [L,QSA]
+
+# Sitemap
+RewriteRule ^sitemap\.xml$ sitemap.php [L]
+
+# ---- 301 Redirects จาก URL เก่า ----
+RewriteRule ^แผนที่(.*)$ / [L,R=301]
+RewriteRule ^คำนวณระยะทาง/?$ /distance-calculator [L,R=301]
+
+# ---- Security ----
+
+# ปิด access ไฟล์ sensitive
+<FilesMatch "\.(env|log|sql|sh)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# ปิด access /includes/ และ /logs/
+RewriteRule ^includes/ - [F,L]
+RewriteRule ^logs/ - [F,L]
+
+# PHP Settings
+php_flag display_errors Off
+php_value upload_max_filesize 10M
+php_value post_max_size 10M
