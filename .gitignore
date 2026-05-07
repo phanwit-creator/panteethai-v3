@@ -1,0 +1,23 @@
+# Environment & Credentials
+.env
+.env.local
+.env.*.local
+
+# PHP
+vendor/
+*.log
+
+# Cache & Uploads
+/cache/
+/logs/
+/uploads/
+
+# Deploy Script (มี credentials)
+deploy.sh
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
