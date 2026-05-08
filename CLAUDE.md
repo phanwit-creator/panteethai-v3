@@ -138,45 +138,43 @@ APP_URL=https://dev.panteethai.com
 ## CURRENT SPRINT STATUS
 # Last updated: พฤษภาคม 2026
 
-Current Sprint: Sprint 4 (TAT Integration)
+Current Sprint: Sprint 5 (Search + Route)
 Status: 🟢 ACTIVE — Ready to build
-Next task: includes/tat.php + api/tat-sync.php + DirectAdmin Cron
+Next task: api/search.php FULLTEXT + search.js autocomplete + OSRM route
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ✅ Sprint 0 — Pre-Development: COMPLETED
 ✅ Sprint 1 — Foundation: COMPLETED
 ✅ Sprint 2 — Core Data: COMPLETED
 ✅ Sprint 3 — Province Pages: COMPLETED
+⚠️  Sprint 4 — TAT Integration: PARTIALLY COMPLETE
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Sprint 3 Completed:
-  - [x] includes/seo.php — seo_meta(), jsonld_tourist_destination(), jsonld_breadcrumb()
-  - [x] province/index.php — map zoom + POI list + 404 handling
-  - [x] SEO: title, meta description, canonical, Open Graph, Twitter Card
-  - [x] JSON-LD TouristDestination schema
-  - [x] JSON-LD BreadcrumbList schema
-  - [x] Mobile responsive — tested iPhone 12 Pro ✓
-  - [x] 404 handling — custom page, not blank/error
-  - [x] Duplicate POI fixed via SQL
+Sprint 4 Status:
+  - [x] includes/tat.php — TAT API client + retry logic
+  - [x] api/tat-sync.php — CRON script + upsert logic
+  - [x] api/tat-proxy.php — serve from cache only
+  - [x] province/index.php — TAT events section added
+  - [x] Committed to git
+  - [ ] TAT domain whitelist — pending (submitted dev.panteethai.com + panteethai.com)
+  - [ ] Cron setup — pending (checking with HostNeverDie support, fallback: cron-job.org)
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔄 Sprint 4 — TAT Integration: IN PROGRESS
+🔄 Sprint 5 — Search + Route: IN PROGRESS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Target: TAT data sync auto, cache hit > 95%
+Target: ค้นหาสถานที่ได้ทันที + คำนวณเส้นทางได้
 ETA: 2 สัปดาห์
 
 In Progress:
-  - [ ] includes/tat.php — TAT API client class + cache logic
-  - [ ] api/tat-sync.php — CRON script ดึง TAT API → upsert MySQL
-  - [ ] api/tat-proxy.php — serve TAT cached data จาก MySQL
-  - [ ] Setup DirectAdmin Cron 02:00 ทุกคืน
-  - [ ] แสดง TAT events + attractions บนหน้าจังหวัด
-  - [ ] ทดสอบ cache hit/miss
-  - [ ] Error handling + retry logic
+  - [ ] api/search.php — FULLTEXT MATCH AGAINST + province filter
+  - [ ] search.js — autocomplete dropdown สมบูรณ์
+  - [ ] distance-calculator/index.php — OSRM route UI
+  - [ ] api/route.php — OSRM proxy + route_cache
+  - [ ] ทดสอบ search latency < 200ms
+  - [ ] ทดสอบ OSRM demo server uptime
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⏳ Upcoming Sprints
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  Sprint 5: Search + Route — FULLTEXT + Spatial + OSRM
   Sprint 6: Monetize + SEO — AdSense apply + Sitemap
   Sprint 7: Launch 🚀
 

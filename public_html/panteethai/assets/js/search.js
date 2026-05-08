@@ -95,12 +95,11 @@ const PanteeSearch = {
         this.input.value = item.name_th;
         this.hide();
 
-        // Fly map ไปที่ผลลัพธ์
-        if (item.lat && item.lng) {
-            const zoom = item.type === 'province' ? 11 : 14;
+        // Fly map ไปที่ผลลัพธ์ (guard: PanteeMap ไม่ถูก load บนทุกหน้า)
+        if (typeof PanteeMap !== 'undefined' && item.lat && item.lng) {
+            const zoom = item.type === 'province' ? (item.zoom || 11) : 14;
             PanteeMap.flyTo(item.lat, item.lng, zoom);
 
-            // โหลด POI ถ้าเลือกจังหวัด
             if (item.type === 'province') {
                 PanteeMap.loadPOI(item.slug);
             }

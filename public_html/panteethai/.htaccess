@@ -30,7 +30,7 @@ RewriteRule ^blog/([a-z0-9-]+)/?$ blog/article.php?slug=$1 [L,QSA]
 RewriteRule ^search/?$ search.php [L,QSA]
 
 # Distance calculator
-RewriteRule ^distance-calculator/?$ route.php [L,QSA]
+RewriteRule ^distance-calculator/?$ distance-calculator/index.php [L,QSA]
 
 # Sitemap
 RewriteRule ^sitemap\.xml$ sitemap.php [L]

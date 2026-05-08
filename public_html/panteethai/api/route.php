@@ -5,43 +5,34 @@ require_once __DIR__ . '/../includes/db.php';
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 
-$points  = trim($_GET['points'] ?? '');
-$profile = $_GET['profile'] ?? 'car';
+$from_lat = (float)($_GET['from_lat'] ?? 0);
+$from_lng = (float)($_GET['from_lng'] ?? 0);
+$to_lat   = (float)($_GET['to_lat']   ?? 0);
+$to_lng   = (float)($_GET['to_lng']   ?? 0);
+$profile  = $_GET['profile'] ?? 'car';
 
 if (!in_array($profile, ['car', 'bike', 'foot'], true)) {
     $profile = 'car';
 }
 
-// Expect at least "lng1,lat1;lng2,lat2"
-$pointArr = array_filter(explode(';', $points));
-if (count($pointArr) < 2) {
-    http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'points parameter requires at least 2 waypoints', 'code' => 400]);
-    exit;
-}
-
-// Parse first and last points for caching columns
-$parsePoint = function (string $p): array {
-    $parts = explode(',', $p);
-    return [(float)($parts[0] ?? 0), (float)($parts[1] ?? 0)]; // [lng, lat]
-};
-
-[$from_lng, $from_lat] = $parsePoint(reset($pointArr));
-[$to_lng, $to_lat]     = $parsePoint(end($pointArr));
-
 if (!$from_lat || !$from_lng || !$to_lat || !$to_lng) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Invalid coordinates', 'code' => 400]);
+    echo json_encode(['success' => false, 'error' => 'from_lat, from_lng, to_lat, to_lng are required', 'code' => 400]);
     exit;
 }
 
-$cacheKey = md5($points . '|' . $profile);
+// Round to 5 decimal places (~1 m precision) for better cache hit rate
+$from_lat = round($from_lat, 5);
+$from_lng = round($from_lng, 5);
+$to_lat   = round($to_lat,   5);
+$to_lng   = round($to_lng,   5);
+
+$cacheKey = md5("{$from_lat},{$from_lng}|{$to_lat},{$to_lng}|{$profile}");
 
 try {
     $cached = db_row(
         "SELECT route_json FROM route_cache
-         WHERE cache_key = ?
-           AND TIMESTAMPDIFF(HOUR, cached_at, NOW()) < 168",
+         WHERE cache_key = ? AND TIMESTAMPDIFF(HOUR, cached_at, NOW()) < 24",
         [$cacheKey]
     );
 
@@ -55,15 +46,10 @@ try {
         exit;
     }
 
-    $osrmProfile = match($profile) {
-        'bike' => 'cycling',
-        'foot' => 'foot',
-        default => 'driving',
-    };
-
-    $waypointsStr = implode(';', $pointArr);
-    $osrmUrl = "https://router.project-osrm.org/route/v1/{$osrmProfile}/{$waypointsStr}"
-             . "?overview=full&geometries=polyline&steps=false";
+    // OSRM demo only supports driving; always fetch driving route
+    $osrmUrl = "https://router.project-osrm.org/route/v1/driving"
+             . "/{$from_lng},{$from_lat};{$to_lng},{$to_lat}"
+             . "?overview=full&geometries=geojson&steps=false";
 
     $ctx  = stream_context_create(['http' => ['method' => 'GET', 'timeout' => 10]]);
     $body = @file_get_contents($osrmUrl, false, $ctx);
@@ -81,12 +67,26 @@ try {
         exit;
     }
 
+    $r          = $osrm['routes'][0];
+    $distance_m = $r['distance'];
+    $duration_s = $r['duration']; // driving default
+
+    // Override duration for non-car profiles
+    if ($profile === 'bike') {
+        // cycling avg 15 km/h
+        $duration_s = ($distance_m / 1000) / 15 * 3600;
+    } elseif ($profile === 'foot') {
+        // walking avg 5 km/h
+        $duration_s = ($distance_m / 1000) / 5 * 3600;
+    }
+    $duration_min = (int) round($duration_s / 60);
+
     $route = [
-        'distance'    => (int)$osrm['routes'][0]['distance'],
-        'duration'    => (int)$osrm['routes'][0]['duration'],
-        'distance_km' => round($osrm['routes'][0]['distance'] / 1000, 1),
-        'duration_min'=> (int)round($osrm['routes'][0]['duration'] / 60),
-        'geometry'    => $osrm['routes'][0]['geometry'],
+        'distance_m'   => (int)$distance_m,
+        'distance_km'  => round($distance_m / 1000, 1),
+        'duration_s'   => (int)$duration_s,
+        'duration_min' => $duration_min,
+        'geometry'     => $r['geometry'],   // GeoJSON LineString
     ];
 
     db_execute(
