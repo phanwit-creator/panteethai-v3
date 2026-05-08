@@ -158,6 +158,46 @@ $footer_inline .= <<<'ENDJS'
 })();
 ENDJS;
 
+// TAT Events fetch (appended to same inline script block)
+$footer_inline .= <<<'EVTJS'
+(function(){
+    function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+    var section=document.getElementById('tat-events');
+    var list=document.getElementById('tat-events-list');
+    fetch('/api/tat-proxy.php?endpoint=events&province='+encodeURIComponent(PROVINCE_SLUG))
+        .then(function(r){return r.json();})
+        .then(function(data){
+            if(!data.success||!data.data||!data.data.length){return;}
+            data.data.forEach(function(ev){
+                var name  =esc(ev.nameThai||ev.name||'');
+                var nameEn=esc(ev.nameEng||ev.nameEnglish||'');
+                var start =esc(ev.startDate||'');
+                var end   =esc(ev.endDate||'');
+                var desc  =esc(ev.detail||ev.description||'');
+                var img   =ev.thumbnailUrl||'';
+                var imgHtml=(img&&img.startsWith('http'))
+                    ?'<img src="'+esc(img)+'" alt="" class="w-16 h-16 object-cover rounded-lg flex-shrink-0">'
+                    :'';
+                var dateHtml=start
+                    ?'<p class="text-xs text-green-600 mt-1">'+start+(end&&end!==start?' — '+end:'')+'</p>'
+                    :'';
+                var el=document.createElement('div');
+                el.className='bg-white rounded-xl shadow-sm p-4 flex gap-4 items-start';
+                el.innerHTML=imgHtml
+                    +'<div class="min-w-0">'
+                    +'<h3 class="font-medium text-gray-800">'+name+'</h3>'
+                    +(nameEn?'<p class="text-xs text-gray-400 mt-0.5">'+nameEn+'</p>':'')
+                    +dateHtml
+                    +(desc?'<p class="text-sm text-gray-500 mt-1 line-clamp-2">'+desc+'</p>':'')
+                    +'</div>';
+                if(list)list.appendChild(el);
+            });
+            if(section)section.style.display='';
+        })
+        .catch(function(){/* stay hidden on error */});
+})();
+EVTJS;
+
 require_once '../includes/head.php';
 ?>
 <body class="bg-gray-50">
@@ -268,6 +308,12 @@ require_once '../includes/head.php';
             <?php endforeach; ?>
         </div>
         <?php endif; ?>
+    </div>
+
+    <!-- TAT Events — hidden until JS confirms there are events to show -->
+    <div id="tat-events" class="max-w-5xl mx-auto px-4 pb-8" style="display:none">
+        <h2 class="text-lg font-semibold text-gray-700 mb-4">กิจกรรมและเทศกาล</h2>
+        <div id="tat-events-list" class="space-y-3"></div>
     </div>
 
 <?php require_once '../includes/footer.php';

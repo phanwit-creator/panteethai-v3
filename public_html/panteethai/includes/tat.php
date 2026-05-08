@@ -47,8 +47,14 @@ class TatApi {
 
         $body = @file_get_contents($url, false, $ctx);
 
+        // Retry once on failure (timeout, network blip)
         if ($body === false) {
-            error_log("TAT API failed: $url");
+            usleep(500000);
+            $body = @file_get_contents($url, false, $ctx);
+        }
+
+        if ($body === false) {
+            error_log("TAT API failed after retry: $url");
             // Return stale cache ถ้ามี
             $stale = db_row(
                 "SELECT response_json FROM tat_cache WHERE cache_key = ?",

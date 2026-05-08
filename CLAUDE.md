@@ -138,43 +138,44 @@ APP_URL=https://dev.panteethai.com
 ## CURRENT SPRINT STATUS
 # Last updated: พฤษภาคม 2026
 
-Current Sprint: Sprint 3 (Province Pages)
+Current Sprint: Sprint 4 (TAT Integration)
 Status: 🟢 ACTIVE — Ready to build
-Next task: includes/seo.php + province/index.php + JSON-LD schema
+Next task: includes/tat.php + api/tat-sync.php + DirectAdmin Cron
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ✅ Sprint 0 — Pre-Development: COMPLETED
 ✅ Sprint 1 — Foundation: COMPLETED
 ✅ Sprint 2 — Core Data: COMPLETED
+✅ Sprint 3 — Province Pages: COMPLETED
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Sprint 2 Completed:
-  - [x] api/places.php — GeoJSON API with province/bbox/category filter
-  - [x] api/nearby.php — ST_Distance_Sphere() radius search
-  - [x] map.js — markerClusterGroup + color-coded circleMarker by category
-  - [x] Category filter UI (ทั้งหมด|วัด|ชายหาด|ธรรมชาติ|ตลาด|โรงแรม|ร้านอาหาร)
-  - [x] place/index.php — POI detail page with nearby places (bonus)
-  - [x] Seed data: 50 POI across 10 provinces imported via phpMyAdmin
-  - [x] SPATIAL INDEX tested — type:ALL rows:75 acceptable for current scale
+Sprint 3 Completed:
+  - [x] includes/seo.php — seo_meta(), jsonld_tourist_destination(), jsonld_breadcrumb()
+  - [x] province/index.php — map zoom + POI list + 404 handling
+  - [x] SEO: title, meta description, canonical, Open Graph, Twitter Card
+  - [x] JSON-LD TouristDestination schema
+  - [x] JSON-LD BreadcrumbList schema
+  - [x] Mobile responsive — tested iPhone 12 Pro ✓
+  - [x] 404 handling — custom page, not blank/error
+  - [x] Duplicate POI fixed via SQL
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔄 Sprint 3 — Province Pages: IN PROGRESS
+🔄 Sprint 4 — TAT Integration: IN PROGRESS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Target: 10 หน้าจังหวัด indexed ใน Search Console
+Target: TAT data sync auto, cache hit > 95%
 ETA: 2 สัปดาห์
 
 In Progress:
-  - [ ] includes/seo.php — seo_meta(), jsonld_tourist_destination(), jsonld_breadcrumb()
-  - [ ] province/index.php — map zoom + POI list + 404 handling
-  - [ ] SEO: title, meta description, canonical, Open Graph
-  - [ ] JSON-LD TouristDestination schema
-  - [ ] JSON-LD BreadcrumbList schema
-  - [ ] Mobile responsive ทดสอบทุก breakpoint
-  - [ ] ทดสอบ 10 จังหวัด /province/[slug] ครบทุกหน้า
+  - [ ] includes/tat.php — TAT API client class + cache logic
+  - [ ] api/tat-sync.php — CRON script ดึง TAT API → upsert MySQL
+  - [ ] api/tat-proxy.php — serve TAT cached data จาก MySQL
+  - [ ] Setup DirectAdmin Cron 02:00 ทุกคืน
+  - [ ] แสดง TAT events + attractions บนหน้าจังหวัด
+  - [ ] ทดสอบ cache hit/miss
+  - [ ] Error handling + retry logic
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⏳ Upcoming Sprints
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  Sprint 4: TAT Integration — Cron sync + Cache
   Sprint 5: Search + Route — FULLTEXT + Spatial + OSRM
   Sprint 6: Monetize + SEO — AdSense apply + Sitemap
   Sprint 7: Launch 🚀
@@ -188,6 +189,7 @@ In Progress:
   - OSRM demo → dev only, Phase 2 self-host on VPS
   - Tailwind CDN Play → ใช้ได้ถึง Phase 2
   - ST_Distance_Sphere() — full scan acceptable up to ~50k rows
+  - province description/image fields empty — update with real content later
   - AdSense pub ID: ยังไม่ยื่น (Sprint 6)
 
 ## USEFUL COMMANDS

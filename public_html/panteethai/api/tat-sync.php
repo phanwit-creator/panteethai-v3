@@ -119,7 +119,7 @@ try {
 
         // ---- Sync Events ----
         try {
-            $response = $tat->events($slug, date('Y-m-d'));
+            $response = $tat->events($slug);
             $items    = $response['data'] ?? (is_array($response) ? $response : []);
 
             foreach ($items as $item) {
