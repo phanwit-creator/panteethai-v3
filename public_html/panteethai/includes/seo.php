@@ -34,7 +34,7 @@ function seo_meta(array $data): string {
 }
 
 // JSON-LD: TouristDestination (หน้าจังหวัด)
-function jsonld_province(array $province): string {
+function jsonld_tourist_destination(array $province): string {
     $data = [
         '@context'    => 'https://schema.org',
         '@type'       => 'TouristDestination',
