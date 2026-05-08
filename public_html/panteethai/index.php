@@ -24,6 +24,27 @@ $seo = [
     'keywords' => 'แผนที่ไทย,ท่องเที่ยวไทย,ที่เที่ยวไทย,Thailand travel map',
 ];
 
+$json_ld = [
+    '<script type="application/ld+json">'
+    . json_encode([
+        '@context' => 'https://schema.org',
+        '@type'    => 'WebSite',
+        'name'     => 'PanteeThai',
+        'url'      => APP_URL,
+        'description' => 'แผนที่ท่องเที่ยวไทยครบทุกจังหวัด',
+        'inLanguage'  => 'th',
+        'potentialAction' => [
+            '@type'       => 'SearchAction',
+            'target'      => [
+                '@type'       => 'EntryPoint',
+                'urlTemplate' => APP_URL . '/search?q={search_term_string}',
+            ],
+            'query-input' => 'required name=search_term_string',
+        ],
+    ], JSON_UNESCAPED_UNICODE)
+    . '</script>',
+];
+
 $extra_head = '<style>#map { height: calc(100vh - 64px); width: 100%; }</style>';
 
 require_once 'includes/head.php';

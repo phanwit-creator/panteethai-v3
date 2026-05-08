@@ -261,6 +261,11 @@ require_once '../includes/head.php';
     <!-- Map -->
     <div id="prov-map" class="border-b"></div>
 
+    <!-- Ad: below map -->
+    <?php if (($ad = adsense_unit('2345678901')) !== ''): ?>
+    <div class="max-w-5xl mx-auto px-4 py-2"><?= $ad ?></div>
+    <?php endif; ?>
+
     <!-- POI list -->
     <div class="max-w-5xl mx-auto px-4 py-6">
         <?php if (empty($places)): ?>
@@ -309,6 +314,11 @@ require_once '../includes/head.php';
         </div>
         <?php endif; ?>
     </div>
+
+    <!-- Ad: below POI list -->
+    <?php if (($ad = adsense_unit('3456789012')) !== ''): ?>
+    <div class="max-w-5xl mx-auto px-4 py-2"><?= $ad ?></div>
+    <?php endif; ?>
 
     <!-- TAT Events — hidden until JS confirms there are events to show -->
     <div id="tat-events" class="max-w-5xl mx-auto px-4 pb-8" style="display:none">

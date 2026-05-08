@@ -138,9 +138,9 @@ APP_URL=https://dev.panteethai.com
 ## CURRENT SPRINT STATUS
 # Last updated: พฤษภาคม 2026
 
-Current Sprint: Sprint 5 (Search + Route)
-Status: 🟢 ACTIVE — Ready to build
-Next task: api/search.php FULLTEXT + search.js autocomplete + OSRM route
+Current Sprint: Sprint 6 (Monetize + SEO)
+Status: 🔄 IN PROGRESS
+Next task: Core Web Vitals review + Google Search Console sitemap submission
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ✅ Sprint 0 — Pre-Development: COMPLETED
@@ -148,47 +148,65 @@ Next task: api/search.php FULLTEXT + search.js autocomplete + OSRM route
 ✅ Sprint 2 — Core Data: COMPLETED
 ✅ Sprint 3 — Province Pages: COMPLETED
 ⚠️  Sprint 4 — TAT Integration: PARTIALLY COMPLETE
+✅ Sprint 5 — Search + Route: COMPLETED
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Sprint 4 Status:
-  - [x] includes/tat.php — TAT API client + retry logic
-  - [x] api/tat-sync.php — CRON script + upsert logic
-  - [x] api/tat-proxy.php — serve from cache only
-  - [x] province/index.php — TAT events section added
-  - [x] Committed to git
-  - [ ] TAT domain whitelist — pending (submitted dev.panteethai.com + panteethai.com)
-  - [ ] Cron setup — pending (checking with HostNeverDie support, fallback: cron-job.org)
+Sprint 5 Completed:
+  - [x] api/search.php — FULLTEXT search provinces + places
+  - [x] search.js — autocomplete dropdown + keyboard nav
+  - [x] api/route.php — OSRM proxy + 24hr cache + profile mapping
+  - [x] distance-calculator/index.php — route planner UI + map
+  - [x] bike/foot duration estimation (OSRM demo = driving only)
+  - [x] .htaccess — distance-calculator route fixed
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔄 Sprint 5 — Search + Route: IN PROGRESS
+🔄 Sprint 6 — Monetize + SEO: IN PROGRESS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Target: ค้นหาสถานที่ได้ทันที + คำนวณเส้นทางได้
-ETA: 2 สัปดาห์
+Target: AdSense applied, Sitemap submitted to Search Console
+ETA: 1 สัปดาห์
 
-In Progress:
-  - [ ] api/search.php — FULLTEXT MATCH AGAINST + province filter
-  - [ ] search.js — autocomplete dropdown สมบูรณ์
-  - [ ] distance-calculator/index.php — OSRM route UI
-  - [ ] api/route.php — OSRM proxy + route_cache
-  - [ ] ทดสอบ search latency < 200ms
-  - [ ] ทดสอบ OSRM demo server uptime
+Completed:
+  - [x] sitemap.php — dynamic XML (provinces + places + articles), try/catch safe
+        Fixed: removed updated_at (column doesn't exist) → uses published_at for articles, $now for provinces
+  - [x] robots.txt — allow bots, disallow /admin/ /api/ /includes/ /logs/
+  - [x] 301 Redirects — /แผนที่ → / and /คำนวณระยะทาง → /distance-calculator in .htaccess
+  - [x] AdSense placements — 3 ad units placed (slots need real IDs from AdSense dashboard):
+        · province/index.php — after map (slot 2345678901)
+        · province/index.php — after POI list (slot 3456789012)
+        · distance-calculator/index.php — below result panel (slot 4567890123)
+        All guarded: adsense_unit() returns '' if ADSENSE_PUB_ID not configured
+  - [x] Schema markup verified:
+        · index.php — WebSite + SearchAction JSON-LD
+        · province/index.php — TouristDestination + BreadcrumbList JSON-LD
+        · distance-calculator/index.php — WebApplication JSON-LD
+        · AdSense script via adsense_script() in head.php (all pages)
+
+Pending:
+  - [ ] Replace placeholder AdSense slot IDs with real ones after AdSense approval
+  - [ ] Core Web Vitals — PageSpeed ≥ 70
+  - [ ] Google Search Console — submit sitemap.xml
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⏳ Upcoming Sprints
+⚠️  Sprint 4 — TAT: Pending Items
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  Sprint 6: Monetize + SEO — AdSense apply + Sitemap
+  - [ ] TAT domain whitelist — submitted, awaiting activation
+  - [ ] Cron setup — checking with HostNeverDie support
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⏳ Upcoming
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   Sprint 7: Launch 🚀
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚠️  KNOWN ISSUES / DECISIONS LOG
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  - TAT API key: [pending/ได้แล้ว — update here]
-  - Maptiler key: optional fallback — set in .env if available
-  - Tile fallback chain: OpenFreeMap → Maptiler → OSM (tileerror event)
-  - OSRM demo → dev only, Phase 2 self-host on VPS
+  - TAT API key: ได้แล้ว — domain whitelist pending
+  - Maptiler key: optional fallback — set in .env
+  - Tile fallback: OpenFreeMap → Maptiler → OSM
+  - OSRM demo → driving only, bike/foot = estimated duration
   - Tailwind CDN Play → ใช้ได้ถึง Phase 2
-  - ST_Distance_Sphere() — full scan acceptable up to ~50k rows
-  - province description/image fields empty — update with real content later
+  - ST_Distance_Sphere() — full scan OK up to ~50k rows
   - AdSense pub ID: ยังไม่ยื่น (Sprint 6)
+  - Cron: HostNeverDie ไม่มี cron panel → fallback cron-job.org
 
 ## USEFUL COMMANDS
 Local dev: php -S localhost:8000 -t public_html/panteethai/

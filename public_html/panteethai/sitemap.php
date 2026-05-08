@@ -1,7 +1,4 @@
 <?php
-// sitemap.php — Dynamic XML Sitemap
-// PanteeThai.com v3
-
 require_once 'includes/config.php';
 require_once 'includes/db.php';
 
@@ -10,9 +7,20 @@ header('Content-Type: application/xml; charset=utf-8');
 $base = APP_URL;
 $now  = date('Y-m-d');
 
-// ดึงข้อมูล
-$provinces = db_query("SELECT slug, updated_at FROM provinces ORDER BY slug");
-$articles  = db_query("SELECT slug, updated_at FROM articles WHERE status = 'published' ORDER BY published_at DESC");
+try {
+    $provinces = db_query("SELECT slug FROM provinces ORDER BY slug");
+    $articles  = db_query(
+        "SELECT slug, published_at FROM articles WHERE status = 'published' ORDER BY published_at DESC LIMIT 500"
+    );
+    $places    = db_query(
+        "SELECT id FROM places WHERE status = 'active' ORDER BY id LIMIT 2000"
+    );
+} catch (Exception $e) {
+    error_log('sitemap.php: ' . $e->getMessage());
+    $provinces = [];
+    $articles  = [];
+    $places    = [];
+}
 
 echo '<?xml version="1.0" encoding="UTF-8"?>';
 ?>
@@ -47,15 +55,25 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
     <?php foreach ($provinces as $p): ?>
     <url>
         <loc><?= $base ?>/province/<?= htmlspecialchars($p['slug']) ?></loc>
-        <lastmod><?= date('Y-m-d', strtotime($p['updated_at'])) ?></lastmod>
+        <lastmod><?= $now ?></lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.9</priority>
     </url>
     <url>
         <loc><?= $base ?>/province/<?= htmlspecialchars($p['slug']) ?>/places</loc>
-        <lastmod><?= date('Y-m-d', strtotime($p['updated_at'])) ?></lastmod>
+        <lastmod><?= $now ?></lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.8</priority>
+    </url>
+    <?php endforeach; ?>
+
+    <!-- สถานที่ท่องเที่ยว -->
+    <?php foreach ($places as $pl): ?>
+    <url>
+        <loc><?= $base ?>/place/<?= (int)$pl['id'] ?></loc>
+        <lastmod><?= $now ?></lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
     </url>
     <?php endforeach; ?>
 
@@ -63,7 +81,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
     <?php foreach ($articles as $a): ?>
     <url>
         <loc><?= $base ?>/blog/<?= htmlspecialchars($a['slug']) ?></loc>
-        <lastmod><?= date('Y-m-d', strtotime($a['updated_at'])) ?></lastmod>
+        <lastmod><?= $a['published_at'] ? date('Y-m-d', strtotime($a['published_at'])) : $now ?></lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>

@@ -8,7 +8,20 @@ $seo = [
     'url'      => APP_URL . '/distance-calculator',
     'keywords' => 'คำนวณระยะทาง,distance calculator,ระยะทางไทย,เดินทางไทย',
 ];
-$json_ld    = [];
+$json_ld = [
+    '<script type="application/ld+json">'
+    . json_encode([
+        '@context' => 'https://schema.org',
+        '@type'    => 'WebApplication',
+        'name'     => 'คำนวณระยะทางไทย — PanteeThai',
+        'url'      => APP_URL . '/distance-calculator',
+        'description' => 'คำนวณระยะทางและเวลาเดินทางระหว่างสถานที่ท่องเที่ยวทั่วไทย รองรับรถยนต์ จักรยาน และการเดิน',
+        'applicationCategory' => 'TravelApplication',
+        'operatingSystem'     => 'Web',
+        'inLanguage'          => 'th',
+    ], JSON_UNESCAPED_UNICODE)
+    . '</script>',
+];
 $extra_head = '<style>
     .calc-layout { height: calc(100vh - 64px); }
     #calc-map    { height: 320px; }
@@ -327,6 +340,11 @@ require_once '../includes/head.php';
                         ข้อมูลเส้นทางจาก OSRM · ใช้เพื่ออ้างอิงเท่านั้น
                     </p>
                 </div>
+
+                <!-- Ad: below result panel -->
+                <?php if (($ad = adsense_unit('4567890123')) !== ''): ?>
+                <div class="mt-4"><?= $ad ?></div>
+                <?php endif; ?>
 
             </div>
         </div>
