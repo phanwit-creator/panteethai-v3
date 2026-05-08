@@ -61,6 +61,32 @@ require_once 'includes/head.php';
     <!-- Map container -->
     <div id="map"></div>
 
+    <!-- Category filter bar — floats over map just below navbar -->
+    <div class="fixed top-16 left-0 right-0 z-[1400] px-3 pt-2 pointer-events-none">
+        <div class="flex gap-1.5 overflow-x-auto pb-2 pointer-events-auto justify-start sm:justify-center">
+            <?php
+            $filters = [
+                ''           => 'ทั้งหมด',
+                'temple'     => '🛕 วัด',
+                'beach'      => '🏖️ ชายหาด',
+                'nature'     => '🌿 ธรรมชาติ',
+                'market'     => '🛒 ตลาด',
+                'hotel'      => '🏨 โรงแรม',
+                'restaurant' => '🍜 ร้านอาหาร',
+            ];
+            foreach ($filters as $cat => $label):
+            ?>
+            <button data-category="<?= htmlspecialchars($cat) ?>"
+                    onclick="PanteeMap.filterByCategory('<?= htmlspecialchars($cat) ?>')"
+                    class="category-btn flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium
+                           shadow-sm transition whitespace-nowrap
+                           <?= $cat === '' ? 'bg-green-500 text-white shadow-md' : 'bg-white text-gray-600' ?>">
+                <?= $label ?>
+            </button>
+            <?php endforeach; ?>
+        </div>
+    </div>
+
     <!-- Province quick-pick bar (pinned above map) -->
     <?php if (!empty($provinces)): ?>
     <div class="fixed bottom-4 left-0 right-0 z-[1000] px-4 pointer-events-none">
