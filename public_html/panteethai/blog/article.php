@@ -82,14 +82,6 @@ require_once '../includes/head.php';
 ?>
 <body class="bg-gray-50">
 
-    <nav class="bg-white shadow-sm h-16 flex items-center px-4 justify-between">
-        <a href="/" class="text-xl font-bold text-green-600">PanteeThai</a>
-        <div class="flex gap-4 text-sm text-gray-600">
-            <a href="/blog" class="hover:text-green-600">บทความ</a>
-            <a href="/" class="hover:text-green-600">แผนที่</a>
-        </div>
-    </nav>
-
     <div class="max-w-2xl mx-auto px-4 py-8">
 
         <!-- Breadcrumb -->

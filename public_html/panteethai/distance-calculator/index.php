@@ -240,13 +240,6 @@ require_once '../includes/head.php';
 ?>
 <body class="bg-gray-50">
 
-    <!-- Navbar -->
-    <nav class="bg-white shadow-sm h-16 flex items-center px-4 gap-3 relative z-[900]">
-        <a href="/" class="text-xl font-bold text-green-600 flex-shrink-0">PanteeThai</a>
-        <span class="text-gray-300 flex-shrink-0">/</span>
-        <span class="text-gray-700 text-sm">คำนวณระยะทาง</span>
-    </nav>
-
     <!-- Main layout: sidebar + map -->
     <div class="calc-layout flex flex-col lg:flex-row overflow-hidden">
 

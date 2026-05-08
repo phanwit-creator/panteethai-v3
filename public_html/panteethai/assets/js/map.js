@@ -67,6 +67,10 @@ const PanteeMap = {
         museum:     '#16A085',
         waterfall:  '#2471A3',
         island:     '#1ABC9C',
+        shopping:   '#E91E8C',
+        airport:    '#0288D1',
+        hospital:   '#D32F2F',
+        transport:  '#F57C00',
         other:      '#7F8C8D',
     },
 

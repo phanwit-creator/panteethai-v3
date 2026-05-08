@@ -41,11 +41,17 @@ if ($not_found) {
 }
 
 // ---- Data ----
+$total_count = (int)(db_row(
+    "SELECT COUNT(*) AS c FROM places WHERE province_slug = ? AND status = 'active'",
+    [$slug]
+)['c'] ?? 0);
+
 $places = db_query(
     "SELECT id, name_th, name_en, category, address, price_thb
      FROM places
      WHERE province_slug = ? AND status = 'active'
-     ORDER BY name_th",
+     ORDER BY name_th
+     LIMIT 20",
     [$slug]
 );
 
@@ -53,7 +59,7 @@ $places = db_query(
 $seo_title = 'แผนที่' . $province['name_th'] . ' - ที่เที่ยว โรงแรม ร้านอาหาร | PanteeThai';
 $desc_raw  = 'ค้นหาสถานที่ท่องเที่ยวใน' . $province['name_th']
            . ' (' . $province['name_en'] . ') ครบทุกประเภท'
-           . ' วัด ชายหาด ธรรมชาติ ตลาด โรงแรม ร้านอาหาร มี ' . count($places) . ' สถานที่';
+           . ' วัด ชายหาด ธรรมชาติ ตลาด โรงแรม ร้านอาหาร มี ' . $total_count . ' สถานที่';
 $seo_desc  = mb_strlen($desc_raw) > 160 ? mb_substr($desc_raw, 0, 158) . '…' : $desc_raw;
 
 $seo = [
@@ -81,14 +87,17 @@ $footer_inline  = 'const PROVINCE_LAT='  . json_encode((float)$province['lat']) 
                 . 'const PROVINCE_LNG='  . json_encode((float)$province['lng'])                         . ';'
                 . 'const PROVINCE_ZOOM=' . (int)($province['zoom_level'] ?? 11)                         . ';'
                 . 'const PROVINCE_SLUG=' . json_encode($slug)                                           . ';'
-                . 'const MAPTILER_KEY='  . json_encode(defined('MAPTILER_KEY') ? MAPTILER_KEY : '')     . ';';
+                . 'const MAPTILER_KEY='  . json_encode(defined('MAPTILER_KEY') ? MAPTILER_KEY : '')     . ';'
+                . 'const INIT_COUNT='    . count($places)                                               . ';';
 
 $footer_inline .= <<<'ENDJS'
 (function(){
     const categoryColor={
         temple:'#C0392B',beach:'#2980B9',nature:'#27AE60',
         market:'#E67E22',hotel:'#8E44AD',restaurant:'#F39C12',
-        museum:'#16A085',waterfall:'#2471A3',island:'#1ABC9C',other:'#7F8C8D'
+        museum:'#16A085',waterfall:'#2471A3',island:'#1ABC9C',
+        shopping:'#E91E8C',airport:'#0288D1',hospital:'#D32F2F',transport:'#F57C00',
+        other:'#7F8C8D'
     };
     const map=L.map('prov-map',{
         center:[PROVINCE_LAT,PROVINCE_LNG],
@@ -138,6 +147,63 @@ $footer_inline .= <<<'ENDJS'
         }).catch(err=>console.error('Province POI error:',err));
     }
     loadPOI('');
+    // ── Infinite scroll list ──────────────────────────────────────
+    const grid   =document.getElementById('poi-grid');
+    const spinner=document.getElementById('poi-spinner');
+    const doneMsg=document.getElementById('poi-done');
+    const catEmoji={
+        temple:'🛕',beach:'🏖️',nature:'🌿',market:'🛒',
+        hotel:'🏨',restaurant:'🍜',museum:'🏛️',waterfall:'💧',
+        island:'🏝️',shopping:'🛍️',airport:'✈️',hospital:'🏥',
+        transport:'🚌'
+    };
+    function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+    function makeCard(f){
+        const p=f.properties;
+        const emoji=catEmoji[p.category]||'📍';
+        const priceHtml=parseInt(p.price_thb)>0
+            ?`<p class="text-xs text-green-600 mt-1">฿${parseInt(p.price_thb).toLocaleString()}</p>`
+            :`<p class="text-xs text-gray-400 mt-1">ฟรี</p>`;
+        const nameEnHtml=p.name_en
+            ?`<p class="text-xs text-gray-400 truncate mt-0.5">${escHtml(p.name_en)}</p>`:'';
+        const a=document.createElement('a');
+        a.href=`/place/${p.id}`;
+        a.dataset.category=p.category;
+        a.className='poi-card bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition flex items-start gap-3 group';
+        a.innerHTML=`<span class="text-2xl flex-shrink-0 leading-none mt-0.5">${emoji}</span>`
+            +`<div class="min-w-0"><h3 class="font-medium text-gray-800 truncate group-hover:text-green-700 transition">${escHtml(p.name_th)}</h3>`
+            +nameEnHtml+priceHtml+`</div>`;
+        return a;
+    }
+    let listOffset=INIT_COUNT,listCategory='',listLoading=false,listDone=INIT_COUNT<20,loadedCount=INIT_COUNT;
+    let observer;
+    if(listDone){
+        if(spinner)spinner.style.display='none';
+        if(INIT_COUNT>0&&doneMsg){doneMsg.textContent=`แสดงทั้งหมดแล้ว ${INIT_COUNT} สถานที่`;doneMsg.style.display='';}
+    }
+    function fetchList(){
+        if(listLoading||listDone||!spinner||!grid)return;
+        listLoading=true;
+        let url=`/api/places.php?province=${encodeURIComponent(PROVINCE_SLUG)}&limit=20&offset=${listOffset}`;
+        if(listCategory)url+=`&category=${encodeURIComponent(listCategory)}`;
+        fetch(url).then(r=>r.json()).then(data=>{
+            listLoading=false;
+            if(!data.success)return;
+            const features=data.data.features||[];
+            features.forEach(f=>{grid.appendChild(makeCard(f));loadedCount++;});
+            listOffset+=features.length;
+            if(!data.has_more){
+                listDone=true;
+                spinner.style.display='none';
+                if(doneMsg){doneMsg.textContent=`แสดงทั้งหมดแล้ว ${loadedCount} สถานที่`;doneMsg.style.display='';}
+                if(observer)observer.disconnect();
+            }
+        }).catch(()=>{listLoading=false;});
+    }
+    observer=new IntersectionObserver(entries=>{
+        if(entries[0].isIntersecting)fetchList();
+    },{threshold:0.1});
+    if(!listDone&&spinner)observer.observe(spinner);
     document.querySelectorAll('.prov-cat-btn').forEach(btn=>{
         btn.addEventListener('click',()=>{
             const cat=btn.dataset.category;
@@ -149,10 +215,13 @@ $footer_inline .= <<<'ENDJS'
                 b.classList.toggle('bg-white',!active);
                 b.classList.toggle('text-gray-600',!active);
             });
+            listCategory=cat;listOffset=0;loadedCount=0;listDone=false;listLoading=false;
+            if(grid)grid.innerHTML='';
+            if(doneMsg)doneMsg.style.display='none';
+            if(spinner)spinner.style.display='';
+            if(observer){observer.disconnect();observer.observe(spinner);}
             loadPOI(cat);
-            document.querySelectorAll('.poi-card').forEach(card=>{
-                card.style.display=(!cat||card.dataset.category===cat)?'':'none';
-            });
+            fetchList();
         });
     });
 })();
@@ -202,13 +271,6 @@ require_once '../includes/head.php';
 ?>
 <body class="bg-gray-50">
 
-    <!-- Navbar -->
-    <nav class="bg-white shadow-sm h-16 flex items-center px-4 gap-3 relative z-[900]">
-        <a href="/" class="text-xl font-bold text-green-600 flex-shrink-0">PanteeThai</a>
-        <span class="text-gray-300 flex-shrink-0">/</span>
-        <span class="text-gray-700 text-sm truncate"><?= htmlspecialchars($province['name_th']) ?></span>
-    </nav>
-
     <!-- Province header -->
     <div class="bg-white border-b">
         <div class="max-w-5xl mx-auto px-4 py-5">
@@ -222,7 +284,7 @@ require_once '../includes/head.php';
             </h1>
             <p class="text-sm text-gray-500 mt-1">
                 <?= htmlspecialchars($province['name_en']) ?>
-                · <?= count($places) ?> สถานที่
+                · <?= $total_count ?> สถานที่
                 <?php if (!empty($province['region'])): ?>
                 · <span class="text-green-600"><?= htmlspecialchars($province['region']) ?></span>
                 <?php endif; ?>
@@ -245,6 +307,10 @@ require_once '../includes/head.php';
                 'museum'     => '🏛️ พิพิธภัณฑ์',
                 'island'     => '🏝️ เกาะ',
                 'waterfall'  => '💧 น้ำตก',
+                'shopping'   => '🛍️ ห้าง',
+                'airport'    => '✈️ สนามบิน',
+                'hospital'   => '🏥 โรงพยาบาล',
+                'transport'  => '🚌 ขนส่ง',
             ];
             foreach ($filters as $cat => $label):
             ?>
@@ -268,13 +334,13 @@ require_once '../includes/head.php';
 
     <!-- POI list -->
     <div class="max-w-5xl mx-auto px-4 py-6">
-        <?php if (empty($places)): ?>
+        <?php if ($total_count === 0): ?>
         <p class="text-gray-400 text-center py-16">ยังไม่มีสถานที่ในจังหวัดนี้</p>
         <?php else: ?>
         <h2 class="text-lg font-semibold text-gray-700 mb-4">
             สถานที่ท่องเที่ยวใน<?= htmlspecialchars($province['name_th']) ?>
         </h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div id="poi-grid" data-offset="20" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <?php foreach ($places as $place): ?>
             <a href="/place/<?= (int)$place['id'] ?>"
                data-category="<?= htmlspecialchars($place['category']) ?>"
@@ -312,6 +378,12 @@ require_once '../includes/head.php';
             </a>
             <?php endforeach; ?>
         </div>
+        <!-- Loading spinner (IntersectionObserver target) -->
+        <div id="poi-spinner" class="flex justify-center py-6">
+            <div class="w-6 h-6 border-2 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+        <!-- Done message -->
+        <p id="poi-done" class="text-center text-sm text-gray-400 py-4" style="display:none"></p>
         <?php endif; ?>
     </div>
 

@@ -9,9 +9,10 @@ $type     = $_GET['type']     ?? 'places';
 $province = trim($_GET['province'] ?? '');
 $category = trim($_GET['category'] ?? '');
 $bbox     = trim($_GET['bbox']     ?? '');
-$limit    = min((int)($_GET['limit'] ?? 200), 500);
+$limit    = min((int)($_GET['limit'] ?? 20), 500);
+$offset   = max(0, (int)($_GET['offset'] ?? 0));
 
-$validCategories = ['temple','beach','nature','market','hotel','restaurant','museum','waterfall','island','other'];
+$validCategories = ['temple','beach','nature','market','hotel','restaurant','museum','waterfall','island','shopping','airport','hospital','transport','other'];
 
 // Validate inputs
 if ($province && !preg_match('/^[a-z0-9-]+$/', $province)) {
@@ -76,7 +77,7 @@ try {
         }
     }
 
-    $sql .= " ORDER BY name_th LIMIT :limit";
+    $sql .= " ORDER BY name_th LIMIT :limit OFFSET :offset";
 
     $pdo  = get_pdo();
     $stmt = $pdo->prepare($sql);
@@ -84,9 +85,12 @@ try {
     foreach ($params as $key => $val) {
         $stmt->bindValue($key, $val);
     }
-    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+    $stmt->bindValue(':limit',  $limit + 1, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $offset,    PDO::PARAM_INT);
     $stmt->execute();
-    $rows = $stmt->fetchAll();
+    $rows     = $stmt->fetchAll();
+    $has_more = count($rows) > $limit;
+    if ($has_more) array_pop($rows);
 
     // Build GeoJSON FeatureCollection
     $features = [];
@@ -121,6 +125,7 @@ try {
         'success'   => true,
         'data'      => $geojson,
         'count'     => count($features),
+        'has_more'  => $has_more,
         'cached'    => false,
         'timestamp' => date('c'),
     ]);

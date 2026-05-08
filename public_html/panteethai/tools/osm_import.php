@@ -12,7 +12,7 @@
  */
 
 define('OVERPASS_API', 'https://overpass-api.de/api/interpreter');
-define('OUTPUT_FILE',  __DIR__ . '/osm_data.sql');
+define('OUTPUT_FILE',  __DIR__ . '/osm_data_newcat_08052026.sql');
 define('SLEEP_SECS',   2);
 define('LIMIT',        50);
 
@@ -23,7 +23,7 @@ $provinces = [
     'chiang-mai'        => ['Chiang Mai',        [18.15,  98.32, 19.52,  99.53]],
     'phuket'            => ['Phuket',            [ 7.74,  98.25,  8.21,  98.48]],
     'krabi'             => ['Krabi',             [ 7.50,  98.60,  8.45,  99.30]],
-    'koh-samui'         => ['Koh Samui',         [ 9.40,  99.75,  9.65, 100.10]],
+    'samui'             => ['Koh Samui',         [ 9.40,  99.75,  9.65, 100.10]],
     'chiang-rai'        => ['Chiang Rai',        [19.47,  99.30, 20.43, 100.65]],
     'ayutthaya'         => ['Ayutthaya',         [14.15, 100.30, 14.60, 100.80]],
     'nakhon-ratchasima' => ['Nakhon Ratchasima', [14.20, 101.40, 15.50, 102.50]],
@@ -32,17 +32,15 @@ $provinces = [
 ];
 
 // ── Categories ────────────────────────────────────────────────────────────────
-// slug => [label, [[tag_key => tag_val, ...]]]
+// slug => [label, db_category (ENUM), [[osm_tag_filters]]]
 // Multiple filter sets are OR'd (separate union arms in Overpass QL)
+// db_category must be one of: temple|beach|nature|market|hotel|restaurant|museum|waterfall|island|other
+// New categories (shopping|airport|hospital|transport) require ALTER TABLE before import — see SQL header comment
 $categories = [
-    'temple'     => ['Temple',     [['amenity' => 'place_of_worship', 'religion' => 'buddhist']]],
-    'market'     => ['Market',     [['amenity' => 'marketplace']]],
-    'museum'     => ['Museum',     [['tourism' => 'museum']]],
-    'waterfall'  => ['Waterfall',  [['waterway' => 'waterfall']]],
-    'beach'      => ['Beach',      [['natural'  => 'beach']]],
-    'hotel'      => ['Hotel',      [['tourism'  => 'hotel']]],
-    'restaurant' => ['Restaurant', [['amenity'  => 'restaurant', 'cuisine' => 'thai']]],
-    'nature'     => ['Nature',     [['tourism'  => 'viewpoint'], ['natural' => 'peak']]],
+    'shopping'  => ['Shopping',  'shopping',  [['shop' => 'mall'], ['shop' => 'supermarket'], ['shop' => 'department_store']]],
+    'airport'   => ['Airport',   'airport',   [['aeroway' => 'aerodrome'], ['aeroway' => 'terminal']]],
+    'hospital'  => ['Hospital',  'hospital',  [['amenity' => 'hospital'], ['amenity' => 'clinic']]],
+    'transport' => ['Transport', 'transport', [['amenity' => 'bus_station'], ['highway' => 'bus_stop']]],
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -127,13 +125,15 @@ progress('Output: ' . OUTPUT_FILE);
 progress(str_repeat('─', 50));
 
 $lines = [];
-$lines[] = '-- osm_data.sql — OpenStreetMap POI import for PanteeThai.com';
+$lines[] = '-- osm_data_newcat_08052026.sql — OpenStreetMap POI import for PanteeThai.com (new categories)';
 $lines[] = '-- Generated:  ' . date('Y-m-d H:i:s T');
 $lines[] = '-- Source:     OpenStreetMap contributors (ODbL)';
 $lines[] = '--             https://www.openstreetmap.org/copyright';
 $lines[] = '-- Script:     tools/osm_import.php';
-$lines[] = '-- Categories: temple, market, museum, waterfall, beach, hotel, restaurant, nature';
+$lines[] = '-- Categories: shopping, airport, hospital, transport';
 $lines[] = '-- Provinces:  10 pilot provinces';
+$lines[] = '-- IMPORTANT:  Run this ALTER TABLE before importing:';
+$lines[] = "--              ALTER TABLE places MODIFY COLUMN category ENUM('temple','beach','nature','market','hotel','restaurant','museum','waterfall','island','shopping','airport','hospital','transport','other') NOT NULL DEFAULT 'other';";
 $lines[] = '';
 $lines[] = 'SET NAMES utf8mb4;';
 $lines[] = '';
@@ -150,7 +150,7 @@ foreach ($provinces as $slug => [$name, $bbox]) {
 
     $seen = []; // deduplicate by name_th within province
 
-    foreach ($categories as $cat => [$label, $filterSets]) {
+    foreach ($categories as $catKey => [$label, $dbCat, $filterSets]) {
         progress("  [{$label}] fetching...");
 
         $query    = build_query($filterSets, $bbox, LIMIT);
@@ -190,7 +190,7 @@ foreach ($provinces as $slug => [$name, $bbox]) {
             $seen[$dedupeKey] = true;
 
             [$lat, $lng] = $coords;
-            $lines[] = make_insert($slug, $nameTh, $nameEn, $cat, $lat, $lng);
+            $lines[] = make_insert($slug, $nameTh, $nameEn, $dbCat, $lat, $lng);
             $count++;
             $totalRows++;
         }
@@ -205,7 +205,7 @@ $lines[] = '-- ' . str_repeat('─', 60);
 $lines[] = "-- Total rows inserted: {$totalRows}";
 $lines[] = "-- API errors:          {$errors}";
 $lines[] = '-- ' . str_repeat('─', 60);
-$lines[] = "-- To import:  mysql -u USER -p DB_NAME < tools/osm_data.sql";
+$lines[] = "-- To import:  mysql -u USER -p DB_NAME < tools/osm_data_newcat_08052026.sql";
 
 file_put_contents(OUTPUT_FILE, implode("\n", $lines) . "\n");
 

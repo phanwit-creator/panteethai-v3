@@ -51,34 +51,6 @@ require_once 'includes/head.php';
 ?>
 <body class="bg-gray-50 overflow-hidden">
 
-    <!-- Navbar -->
-    <nav class="bg-white shadow-sm h-16 flex items-center px-4 gap-4 relative z-[1500]">
-
-        <a href="/" class="text-xl font-bold text-green-600 flex-shrink-0">
-            PanteeThai
-        </a>
-
-        <!-- Search box -->
-        <div class="flex-1 max-w-lg relative">
-            <input type="text"
-                   id="search-input"
-                   autocomplete="off"
-                   placeholder="ค้นหาสถานที่, จังหวัด..."
-                   class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full text-sm
-                          focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200">
-            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-base pointer-events-none">
-                🔍
-            </span>
-            <div id="search-dropdown"></div>
-        </div>
-
-        <nav class="hidden sm:flex items-center gap-4 text-sm text-gray-600 flex-shrink-0">
-            <a href="/blog" class="hover:text-green-600">บทความ</a>
-            <a href="/distance-calculator" class="hover:text-green-600">คำนวณระยะทาง</a>
-        </nav>
-
-    </nav>
-
     <!-- Map container -->
     <div id="map"></div>
 
@@ -94,6 +66,10 @@ require_once 'includes/head.php';
                 'market'     => '🛒 ตลาด',
                 'hotel'      => '🏨 โรงแรม',
                 'restaurant' => '🍜 ร้านอาหาร',
+                'shopping'   => '🛍️ ห้าง',
+                'airport'    => '✈️ สนามบิน',
+                'hospital'   => '🏥 โรงพยาบาล',
+                'transport'  => '🚌 ขนส่ง',
             ];
             foreach ($filters as $cat => $label):
             ?>
