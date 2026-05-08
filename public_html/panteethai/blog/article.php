@@ -56,35 +56,30 @@ $seoTitle = htmlspecialchars($article['title_th']) . ' | PanteeThai';
 $seoDesc  = $article['seo_keywords']
     ? mb_substr($article['seo_keywords'], 0, 155)
     : mb_substr(strip_tags($article['content_th'] ?? ''), 0, 155);
-?>
-<!DOCTYPE html>
-<html lang="th">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <?= seo_meta([
-        'title'    => $seoTitle,
-        'desc'     => $seoDesc,
-        'url'      => APP_URL . '/blog/' . $slug,
-        'image'    => $article['featured_image'] ?? '',
-        'keywords' => $article['seo_keywords'] ?? '',
-    ]) ?>
+$seo = [
+    'title'    => $seoTitle,
+    'desc'     => $seoDesc,
+    'url'      => APP_URL . '/blog/' . $slug,
+    'image'    => $article['featured_image'] ?? '',
+    'keywords' => $article['seo_keywords'] ?? '',
+];
 
-    <script type="application/ld+json">
-    <?= json_encode($articleSchema, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) ?>
-    </script>
-
-    <?= jsonld_breadcrumb([
-        ['name' => 'หน้าแรก',   'url' => '/'],
-        ['name' => 'บทความ',    'url' => '/blog'],
+$json_ld = [
+    '<script type="application/ld+json">'
+    . json_encode($articleSchema, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT)
+    . '</script>',
+    jsonld_breadcrumb([
+        ['name' => 'หน้าแรก',            'url' => '/'],
+        ['name' => 'บทความ',             'url' => '/blog'],
         ['name' => $article['title_th'], 'url' => '/blog/' . $slug],
-    ]) ?>
+    ]),
+];
 
-    <?= adsense_script() ?>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="/assets/css/app.css">
-</head>
+$extra_head = '';
+
+require_once '../includes/head.php';
+?>
 <body class="bg-gray-50">
 
     <nav class="bg-white shadow-sm h-16 flex items-center px-4 justify-between">
@@ -209,12 +204,4 @@ $seoDesc  = $article['seo_keywords']
 
     </div>
 
-    <footer class="border-t bg-white mt-8 py-6 text-center text-xs text-gray-400">
-        © <?= date('Y') ?> PanteeThai.com · ข้อมูลแผนที่จาก
-        <a href="https://www.openstreetmap.org/copyright" class="hover:underline">
-            OpenStreetMap contributors
-        </a>
-    </footer>
-
-</body>
-</html>
+<?php require_once '../includes/footer.php';

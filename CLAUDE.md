@@ -138,9 +138,9 @@ APP_URL=https://dev.panteethai.com
 ## CURRENT SPRINT STATUS
 # Last updated: พฤษภาคม 2026
 
-Current Sprint: Sprint 7 (Launch)
-Status: 🟢 ACTIVE
-Next task: Pre-launch checklist → DNS switch → Monitor
+Current Sprint: Pre-Launch Preparation
+Status: 🟡 IN PROGRESS — Data & QA before DNS switch
+Next task: Expand places data + TAT API verification
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ✅ Sprint 0 — Pre-Development: COMPLETED
@@ -150,37 +150,36 @@ Next task: Pre-launch checklist → DNS switch → Monitor
 ⚠️  Sprint 4 — TAT Integration: PARTIALLY COMPLETE
 ✅ Sprint 5 — Search + Route: COMPLETED
 ✅ Sprint 6 — Monetize + SEO: COMPLETED
+✅ Sprint 7 — Launch Prep: COMPLETED
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Sprint 6 Completed:
-  - [x] sitemap.php — dynamic XML, 10 provinces + 50 places
-  - [x] robots.txt — ASCII only, disallow /admin/ /api/ /includes/
-  - [x] AdSense placements — province + distance calculator (placeholder IDs)
-  - [x] JSON-LD WebSite + SearchAction schema on index.php
-  - [x] JSON-LD WebApplication schema on distance-calculator
-  - [x] PageSpeed Mobile 72 / Desktop 87
-  - [x] SEO score 100/100 both mobile + desktop
+Sprint 7 Completed:
+  - [x] Privacy Policy, About, Contact pages
+  - [x] Custom 404 page
+  - [x] UptimeRobot monitor
+  - [x] Google Search Console verified + sitemap submitted (73 pages)
+  - [x] Google Analytics 4 — G-86FDSSS7XG
+  - [x] AdSense Auto ads — active, status 200
+  - [x] Code audit — no CRITICAL issues
+  - [x] blog/ pages wired to head.php/footer.php
+  - [x] config_Last.php deleted
+  - [x] htmlspecialchars() fixes in blog/index.php
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔄 Sprint 7 — Launch: IN PROGRESS
+🔄 Pre-Launch: IN PROGRESS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Target: ข้อมูลครบ + ไม่มี error ก่อน DNS switch
+
 In Progress:
-  - [ ] Privacy Policy page
-  - [ ] About page + Contact page
-  - [ ] Custom 404 page
-  - [ ] Test all URL redirects
-  - [ ] Force HTTPS verify
-  - [ ] UptimeRobot monitor setup
-  - [ ] Google Search Console — verify domain
-  - [ ] Google Search Console — submit sitemap
-  - [ ] Google Analytics 4 — verify tracking
-  - [ ] AdSense — apply for approval
-  - [ ] DNS switch panteethai.com → new server
-  - [ ] Monitor 48hr after launch
+  - [ ] เพิ่มข้อมูล places ให้ครบทุกจังหวัด (ตอนนี้มี 50 POI)
+  - [ ] ตรวจสอบ TAT API — domain whitelist status
+  - [ ] ทดสอบทุกหน้าหลักไม่มี error
+  - [ ] DNS switch panteethai.com → production
+  - [ ] Monitor 48hr หลัง launch
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚠️  Sprint 4 — TAT: Pending
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  - [ ] TAT domain whitelist — pending activation
+  - [ ] TAT domain whitelist — submitted, awaiting activation
   - [ ] Cron setup — pending HostNeverDie support reply
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -191,9 +190,9 @@ In Progress:
   - Tile fallback: OpenFreeMap → Maptiler → OSM
   - OSRM demo → driving only, bike/foot = estimated duration
   - Tailwind CDN Play → ใช้ได้ถึง Phase 2
-  - ST_Distance_Sphere() — full scan OK up to ~50k rows
-  - AdSense pub ID: ยังไม่ยื่น (Sprint 6)
+  - AdSense pub ID: active — auto ads ON
   - Cron: HostNeverDie ไม่มี cron panel → fallback cron-job.org
+  - blog/article.php content: plain text only (no rich HTML yet)
 
 ## USEFUL COMMANDS
 Local dev: php -S localhost:8000 -t public_html/panteethai/
