@@ -136,30 +136,91 @@ APP_DEBUG=true
 APP_URL=https://dev.panteethai.com
 
 ## CURRENT SPRINT STATUS
-Current Sprint: Sprint 1 (Foundation) — In Progress
-Status: Core files committed, waiting for dev.panteethai.com SSL
+# Last updated: พฤษภาคม 2026
 
+Current Sprint: Sprint 1 (Foundation)
+Status: 🟢 ACTIVE — Ready to build
+Next task: .htaccess URL rewrite + includes/config.php + db.php + Leaflet skeleton
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ Sprint 0 — Pre-Development: COMPLETED
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Completed:
-- [x] Master Plan v3 created
-- [x] Server selected (RH-Neptune) + migrated
-- [x] DB schema designed (db-schema.sql)
-- [x] GitHub repo setup (panteethai-v3)
-- [x] Local clone ready (~/Desktop/panteethai-v3)
-- [x] .gitignore + CLAUDE.md created
-- [x] Claude Project setup
-- [x] TAT API key registered
-- [x] Maptiler API key registered
-- [x] Folder structure created (27 files)
-- [x] Core PHP files: config.php, db.php, tat.php, seo.php
-- [x] APIs: places.php, search.php, nearby.php
-- [x] Frontend: map.js, search.js, route.js
-- [x] index.php, province/index.php, sitemap.php, robots.txt, .htaccess
+  - [x] Master Plan v3 created (PanteeThai_MasterPlan_v3_Complete.docx)
+  - [x] Server selected & migrated → HostNeverDie RH-Neptune
+  - [x] PHP 8.2 set in DirectAdmin ✓
+  - [x] MariaDB 10.6 confirmed ✓
+  - [x] dev.panteethai.com → LIVE with HTTPS ✓
+  - [x] DB schema designed & deployed (MariaDB)
+  - [x] 10 pilot provinces seeded:
+        กรุงเทพฯ | เชียงใหม่ | ภูเก็ต | กระบี่ | เกาะสมุย
+        เชียงราย | อยุธยา | นครราชสีมา | ขอนแก่น | สุราษฎร์ธานี
+  - [x] GitHub repo created: panteethai-v3 ✓
+  - [x] CLAUDE.md initialized ✓
+  - [x] Claude Project configured ✓
+
+Current Sprint: Sprint 2 (Core Data)
+Status: 🟢 ACTIVE — Ready to build
+Next task: GeoJSON API + Markers + Clustering บนแผนที่
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ Sprint 0 — Pre-Development: COMPLETED
+✅ Sprint 1 — Foundation: COMPLETED
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Sprint 1 Completed:
+  - [x] .htaccess — clean URLs + HTTPS force + security headers
+        (was already complete from Sprint 0 — carried forward)
+  - [x] includes/config.php — .env parsing, single clear path, constants
+  - [x] includes/db.php — PDO singleton + spatial helpers
+  - [x] includes/head.php — outputs <!DOCTYPE html> → </head>
+        Variables contract:
+          $seo          → array [title, desc, url, image, keywords]
+          $json_ld      → [] of strings → <script type="ld+json">
+          $extra_head   → string → page-specific <style>/meta
+  - [x] includes/footer.php — <footer> + Leaflet JS + page scripts + </body></html>
+        Variables contract:
+          $footer_scripts → [] of URLs → <script src>
+          $footer_inline  → string → inline JS (PHP vars exposure)
+  - [x] index.php — rebuilt, uses head/footer, OpenFreeMap primary tile
+        Fallback chain: OpenFreeMap → Maptiler (if key set) → OSM on tileerror
+        DB query wrapped in try/catch → renders gracefully if DB not ready
+  - [x] assets/js/map.js — updated
+        Primary: https://tiles.openfreemap.org/styles/liberty/{z}/{x}/{y}.png
+        tileerror fallback logic in place
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔄 Sprint 2 — Core Data: IN PROGRESS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Target: 10 จังหวัด + POI markers แสดงบนแผนที่ได้
+ETA: 2 สัปดาห์
 
 In Progress:
-- [ ] dev.panteethai.com SSL (HostNeverDie support กำลังดำเนินการ)
-- [ ] MariaDB panteethai_new database setup
-- [ ] Deploy ไป dev.panteethai.com
-- [ ] ทดสอบ PHP 8.2 + MariaDB ทุก feature
+  - [ ] api/places.php — GeoJSON API (filter: province/bbox/category)
+  - [ ] api/nearby.php — ST_Distance_Sphere() radius search → JSON
+  - [ ] Leaflet marker rendering จาก GeoJSON API response
+  - [ ] Leaflet.markercluster — cluster POI markers
+  - [ ] Category filter UI (temple/beach/nature/market/hotel/restaurant)
+  - [ ] Verify 10 pilot province seed data ครบถ้วน
+  - [ ] ทดสอบ SPATIAL INDEX performance บน server จริง
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⏳ Upcoming Sprints
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Sprint 3: Province Pages — 10 หน้า + SEO + JSON-LD
+  Sprint 4: TAT Integration — Cron sync + Cache
+  Sprint 5: Search + Route — FULLTEXT + Spatial + OSRM
+  Sprint 6: Monetize + SEO — AdSense apply + Sitemap
+  Sprint 7: Launch 🚀
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️  KNOWN ISSUES / DECISIONS LOG
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  - TAT API key: [pending/ได้แล้ว — update here]
+  - Maptiler key: optional fallback — set in .env if available
+  - Tile fallback chain: OpenFreeMap → Maptiler → OSM (tileerror event)
+  - OSRM demo → dev only, Phase 2 self-host on VPS
+  - Tailwind CDN Play → ใช้ได้ถึง Phase 2
+  - AdSense pub ID: ยังไม่ยื่น (Sprint 6)
 
 ## USEFUL COMMANDS
 Local dev: php -S localhost:8000 -t public_html/panteethai/

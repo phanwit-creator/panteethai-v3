@@ -121,3 +121,25 @@ const PanteeSearch = {
             e.preventDefault();
             if (active) active.classList.remove('bg-green-100');
             idx = (idx - 1 + items.length) % items.length;
+            items[idx]?.classList.add('bg-green-100');
+        } else if (e.key === 'Escape') {
+            this.hide();
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (active) active.click();
+        }
+    },
+
+    show() {
+        this.dropdown.classList.remove('hidden');
+    },
+
+    hide() {
+        this.dropdown.classList.add('hidden');
+        this.dropdown.innerHTML = '';
+    },
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    PanteeSearch.init();
+});

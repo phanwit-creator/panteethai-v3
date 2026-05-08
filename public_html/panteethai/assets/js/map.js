@@ -13,12 +13,36 @@ const PanteeMap = {
             zoomControl: false
         });
 
-        // Primary tile: OpenStreetMap
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            subdomains: ['a', 'b', 'c'],
-            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
-        }).addTo(this.map);
+        // Primary tile: OpenFreeMap
+        const primaryTile = L.tileLayer('https://tiles.openfreemap.org/styles/liberty/{z}/{x}/{y}.png', {
+            maxZoom: 20,
+            attribution: '© <a href="https://openfreemap.org" target="_blank">OpenFreeMap</a> · © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+        });
+
+        // Fallback tile: Maptiler (requires MAPTILER_KEY) or OSM
+        const maptilerKey = (typeof MAPTILER_KEY !== 'undefined' && MAPTILER_KEY)
+            ? MAPTILER_KEY : null;
+
+        const fallbackTile = maptilerKey
+            ? L.tileLayer(`https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=${maptilerKey}`, {
+                maxZoom: 20,
+                attribution: '© <a href="https://www.maptiler.com">MapTiler</a> · © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+              })
+            : L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                subdomains: ['a', 'b', 'c'],
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
+              });
+
+        primaryTile.on('tileerror', () => {
+            if (!this._usingFallback) {
+                this._usingFallback = true;
+                this.map.removeLayer(primaryTile);
+                fallbackTile.addTo(this.map);
+            }
+        });
+
+        primaryTile.addTo(this.map);
 
         // Controls
         L.control.zoom({ position: 'topright' }).addTo(this.map);

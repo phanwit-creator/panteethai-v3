@@ -2,12 +2,7 @@
 // includes/config.php — Load .env + Constants
 // PanteeThai.com v3
 
-// Load .env file
-// $cfg = parse_ini_file(__DIR__ . '/../../../.env');
-//$cfg = parse_ini_file(dirname(dirname(dirname(__DIR__))) . '/.env');
-//$cfg = parse_ini_file(dirname(dirname(__DIR__)) . '/.env');
-//$cfg = parse_ini_file('/home/panteeth/domains/dev.panteethai.com/.env');
-//$cfg = parse_ini_file($_SERVER['DOCUMENT_ROOT'] . '/../.env');
+// Load .env — one directory above DocumentRoot (e.g. /home/panteeth/.env)
 $cfg = parse_ini_file($_SERVER['DOCUMENT_ROOT'] . '/../.env');
 if (!$cfg) {
     error_log('Cannot load .env file');
