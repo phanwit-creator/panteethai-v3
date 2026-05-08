@@ -39,4 +39,13 @@ $extra_head = $extra_head ?? '';
     <link rel="stylesheet" href="/assets/css/app.css">
 
     <?= $extra_head ?>
+
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-86FDSSS7XG"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-86FDSSS7XG');
+    </script>
 </head>

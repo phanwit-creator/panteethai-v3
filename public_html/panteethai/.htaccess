@@ -1,6 +1,8 @@
 # PanteeThai.com v3 — Apache URL Rewrite Rules
 
 Options -Indexes
+ErrorDocument 404 /404.php
+
 RewriteEngine On
 
 # Force HTTPS
@@ -31,6 +33,11 @@ RewriteRule ^search/?$ search.php [L,QSA]
 
 # Distance calculator
 RewriteRule ^distance-calculator/?$ distance-calculator/index.php [L,QSA]
+
+# Static pages
+RewriteRule ^privacy-policy/?$ privacy-policy/index.php [L,QSA]
+RewriteRule ^about/?$          about/index.php          [L,QSA]
+RewriteRule ^contact/?$        contact/index.php        [L,QSA]
 
 # Sitemap
 RewriteRule ^sitemap\.xml$ sitemap.php [L]

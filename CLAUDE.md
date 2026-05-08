@@ -138,9 +138,9 @@ APP_URL=https://dev.panteethai.com
 ## CURRENT SPRINT STATUS
 # Last updated: พฤษภาคม 2026
 
-Current Sprint: Sprint 6 (Monetize + SEO)
-Status: 🔄 IN PROGRESS
-Next task: Core Web Vitals review + Google Search Console sitemap submission
+Current Sprint: Sprint 7 (Launch)
+Status: 🟢 ACTIVE
+Next task: Pre-launch checklist → DNS switch → Monitor
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ✅ Sprint 0 — Pre-Development: COMPLETED
@@ -149,52 +149,39 @@ Next task: Core Web Vitals review + Google Search Console sitemap submission
 ✅ Sprint 3 — Province Pages: COMPLETED
 ⚠️  Sprint 4 — TAT Integration: PARTIALLY COMPLETE
 ✅ Sprint 5 — Search + Route: COMPLETED
+✅ Sprint 6 — Monetize + SEO: COMPLETED
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Sprint 5 Completed:
-  - [x] api/search.php — FULLTEXT search provinces + places
-  - [x] search.js — autocomplete dropdown + keyboard nav
-  - [x] api/route.php — OSRM proxy + 24hr cache + profile mapping
-  - [x] distance-calculator/index.php — route planner UI + map
-  - [x] bike/foot duration estimation (OSRM demo = driving only)
-  - [x] .htaccess — distance-calculator route fixed
+Sprint 6 Completed:
+  - [x] sitemap.php — dynamic XML, 10 provinces + 50 places
+  - [x] robots.txt — ASCII only, disallow /admin/ /api/ /includes/
+  - [x] AdSense placements — province + distance calculator (placeholder IDs)
+  - [x] JSON-LD WebSite + SearchAction schema on index.php
+  - [x] JSON-LD WebApplication schema on distance-calculator
+  - [x] PageSpeed Mobile 72 / Desktop 87
+  - [x] SEO score 100/100 both mobile + desktop
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔄 Sprint 6 — Monetize + SEO: IN PROGRESS
+🔄 Sprint 7 — Launch: IN PROGRESS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Target: AdSense applied, Sitemap submitted to Search Console
-ETA: 1 สัปดาห์
-
-Completed:
-  - [x] sitemap.php — dynamic XML (provinces + places + articles), try/catch safe
-        Fixed: removed updated_at (column doesn't exist) → uses published_at for articles, $now for provinces
-  - [x] robots.txt — allow bots, disallow /admin/ /api/ /includes/ /logs/
-  - [x] 301 Redirects — /แผนที่ → / and /คำนวณระยะทาง → /distance-calculator in .htaccess
-  - [x] AdSense placements — 3 ad units placed (slots need real IDs from AdSense dashboard):
-        · province/index.php — after map (slot 2345678901)
-        · province/index.php — after POI list (slot 3456789012)
-        · distance-calculator/index.php — below result panel (slot 4567890123)
-        All guarded: adsense_unit() returns '' if ADSENSE_PUB_ID not configured
-  - [x] Schema markup verified:
-        · index.php — WebSite + SearchAction JSON-LD
-        · province/index.php — TouristDestination + BreadcrumbList JSON-LD
-        · distance-calculator/index.php — WebApplication JSON-LD
-        · AdSense script via adsense_script() in head.php (all pages)
-
-Pending:
-  - [ ] Replace placeholder AdSense slot IDs with real ones after AdSense approval
-  - [ ] Core Web Vitals — PageSpeed ≥ 70
-  - [ ] Google Search Console — submit sitemap.xml
+In Progress:
+  - [ ] Privacy Policy page
+  - [ ] About page + Contact page
+  - [ ] Custom 404 page
+  - [ ] Test all URL redirects
+  - [ ] Force HTTPS verify
+  - [ ] UptimeRobot monitor setup
+  - [ ] Google Search Console — verify domain
+  - [ ] Google Search Console — submit sitemap
+  - [ ] Google Analytics 4 — verify tracking
+  - [ ] AdSense — apply for approval
+  - [ ] DNS switch panteethai.com → new server
+  - [ ] Monitor 48hr after launch
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⚠️  Sprint 4 — TAT: Pending Items
+⚠️  Sprint 4 — TAT: Pending
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  - [ ] TAT domain whitelist — submitted, awaiting activation
-  - [ ] Cron setup — checking with HostNeverDie support
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-⏳ Upcoming
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  Sprint 7: Launch 🚀
+  - [ ] TAT domain whitelist — pending activation
+  - [ ] Cron setup — pending HostNeverDie support reply
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ⚠️  KNOWN ISSUES / DECISIONS LOG

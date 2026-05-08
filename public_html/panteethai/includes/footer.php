@@ -12,18 +12,24 @@ $footer_inline  = $footer_inline  ?? '';
 ?>
 
     <footer class="border-t bg-white py-6 mt-8">
-        <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-400">
-            <p>© <?= date('Y') ?> <a href="/" class="hover:text-green-600 font-medium">PanteeThai.com</a> — แผนที่ท่องเที่ยวไทย</p>
-            <p>
-                ข้อมูลแผนที่จาก
-                <a href="https://www.openstreetmap.org/copyright"
-                   target="_blank" rel="noopener"
-                   class="hover:underline">© OpenStreetMap contributors</a>
-                ·
-                <a href="/sitemap.xml" class="hover:underline">Sitemap</a>
-                ·
-                <a href="/blog" class="hover:underline">บทความ</a>
-            </p>
+        <div class="max-w-5xl mx-auto px-4 text-xs text-gray-400 space-y-3">
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+                <p>© <?= date('Y') ?> <a href="/" class="hover:text-green-600 font-medium">PanteeThai.com</a> — แผนที่ท่องเที่ยวไทย</p>
+                <p>
+                    ข้อมูลแผนที่จาก
+                    <a href="https://www.openstreetmap.org/copyright"
+                       target="_blank" rel="noopener"
+                       class="hover:underline">© OpenStreetMap contributors</a>
+                </p>
+            </div>
+            <div class="flex flex-wrap justify-center sm:justify-start gap-x-4 gap-y-1">
+                <a href="/blog"            class="hover:text-green-600 hover:underline transition">บทความ</a>
+                <a href="/distance-calculator" class="hover:text-green-600 hover:underline transition">คำนวณระยะทาง</a>
+                <a href="/about"           class="hover:text-green-600 hover:underline transition">เกี่ยวกับเรา</a>
+                <a href="/contact"         class="hover:text-green-600 hover:underline transition">ติดต่อเรา</a>
+                <a href="/privacy-policy"  class="hover:text-green-600 hover:underline transition">นโยบายความเป็นส่วนตัว</a>
+                <a href="/sitemap.xml"     class="hover:text-green-600 hover:underline transition">Sitemap</a>
+            </div>
         </div>
     </footer>
 
