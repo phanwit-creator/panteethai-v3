@@ -48,4 +48,8 @@ $extra_head = $extra_head ?? '';
       gtag('js', new Date());
       gtag('config', 'G-86FDSSS7XG');
     </script>
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=<?= defined('ADSENSE_PUB_ID') ? htmlspecialchars(ADSENSE_PUB_ID) : '' ?>"
+         crossorigin="anonymous"></script>
 </head>
