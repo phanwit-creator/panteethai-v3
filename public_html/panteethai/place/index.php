@@ -105,6 +105,11 @@ $json_ld = [
         ['name' => $place['name_th'],                   'url' => '/place/' . $placeId],
     ]),
 ];
+$route_url = '/distance-calculator?'
+           . 'to_lat='   . $place['lat']
+           . '&to_lng='  . $place['lng']
+           . '&to_name=' . urlencode($place['name_th']);
+
 $extra_head = '<style>#place-map{height:350px;width:100%;}</style>';
 
 $footer_inline  = 'const PLACE_LAT='  . json_encode((float)$place['lat'])  . ';'
@@ -216,7 +221,7 @@ require_once '../includes/head.php';
                               hover:bg-gray-50 hover:border-gray-300 transition shadow-sm">
                         📍 ดูบน Google Maps
                     </a>
-                    <a href="/distance-calculator?to_lat=<?= (float)$place['lat'] ?>&amp;to_lng=<?= (float)$place['lng'] ?>"
+                    <a href="<?= htmlspecialchars($route_url) ?>"
                        class="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl
                               text-sm font-medium text-white bg-green-500 hover:bg-green-600
                               transition shadow-sm">

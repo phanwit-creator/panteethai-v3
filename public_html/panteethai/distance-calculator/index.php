@@ -2,6 +2,10 @@
 require_once '../includes/config.php';
 require_once '../includes/seo.php';
 
+$preset_to_lat  = isset($_GET['to_lat'])  ? (float)$_GET['to_lat']  : null;
+$preset_to_lng  = isset($_GET['to_lng'])  ? (float)$_GET['to_lng']  : null;
+$preset_to_name = isset($_GET['to_name']) ? htmlspecialchars($_GET['to_name']) : '';
+
 $seo = [
     'title'    => 'คำนวณระยะทาง — PanteeThai',
     'desc'     => 'คำนวณระยะทางและเวลาเดินทางระหว่างสถานที่ท่องเที่ยวทั่วไทย รองรับรถยนต์ จักรยาน และการเดิน',
@@ -29,6 +33,11 @@ $extra_head = '<style>
 </style>';
 
 $footer_inline  = 'const MAPTILER_KEY=' . json_encode(defined('MAPTILER_KEY') ? MAPTILER_KEY : '') . ';';
+$footer_inline .= 'const PRESET_TO={'
+               . 'lat:'  . ($preset_to_lat  !== null ? $preset_to_lat  : 'null') . ','
+               . 'lng:'  . ($preset_to_lng  !== null ? $preset_to_lng  : 'null') . ','
+               . 'name:' . json_encode($preset_to_name)
+               . '};';
 $footer_inline .= <<<'ENDJS'
 (function () {
 
@@ -231,6 +240,47 @@ $footer_inline .= <<<'ENDJS'
         const h = Math.floor(min / 60);
         const m = min % 60;
         return h + ' ชั่วโมง' + (m > 0 ? ' ' + m + ' นาที' : '');
+    }
+
+    // ---- Preset destination from URL params ----
+    if (PRESET_TO.lat !== null) {
+        const toInput = document.getElementById('to-input');
+        toInput.value = PRESET_TO.name;
+        toPoint = { lat: PRESET_TO.lat, lng: PRESET_TO.lng, name: PRESET_TO.name };
+        if (toMarker) map.removeLayer(toMarker);
+        toMarker = L.marker([PRESET_TO.lat, PRESET_TO.lng])
+            .addTo(map)
+            .bindPopup('<b>ถึง:</b> ' + PRESET_TO.name)
+            .openPopup();
+        map.setView([PRESET_TO.lat, PRESET_TO.lng], 13);
+    }
+
+    // ---- Auto geolocation for จุดเริ่มต้น ----
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            pos => {
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
+                fetch('https://nominatim.openstreetmap.org/reverse?lat=' + lat + '&lon=' + lng + '&format=json&accept-language=th')
+                    .then(r => r.json())
+                    .then(data => {
+                        const addr = data.address || {};
+                        const name = addr.city || addr.town || addr.village || addr.suburb || addr.county || 'ตำแหน่งปัจจุบัน';
+                        const fromInput = document.getElementById('from-input');
+                        if (!fromInput.value) {
+                            fromInput.value = name;
+                            fromPoint = { lat, lng, name };
+                            if (fromMarker) map.removeLayer(fromMarker);
+                            fromMarker = L.marker([lat, lng])
+                                .addTo(map)
+                                .bindPopup('<b>จาก:</b> ตำแหน่งของคุณ');
+                            if (PRESET_TO.lat === null) map.setView([lat, lng], 11);
+                        }
+                    })
+                    .catch(() => {});
+            },
+            () => {}
+        );
     }
 
 })();
