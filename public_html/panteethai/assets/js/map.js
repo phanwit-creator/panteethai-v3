@@ -4,6 +4,7 @@
 const PanteeMap = {
     map: null,
     markers: null,
+    searchMarker: null,     // single highlighted marker from search results
     _currentProvince: null, // province slug currently loaded, or null
     _currentCategory: '',   // active category filter, or ''
     _usingFallback: false,

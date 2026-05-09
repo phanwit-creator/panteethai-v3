@@ -108,14 +108,109 @@ $footer_inline  = $footer_inline  ?? '';
             });
         }
 
-        // ── 5. Mobile search: Enter → /search page ────────────────────────
+        // ── 5. Mobile search: autocomplete dropdown appended to body ─────
+        // Dropdown is body-level (fixed) so overflow-hidden on the menu
+        // container does not clip it.
         if (mInput) {
+            var mdd = document.createElement('div');
+            mdd.className = 'fixed bg-white border border-gray-200 rounded-xl shadow-lg '
+                          + 'z-[2000] max-h-64 overflow-y-auto hidden';
+            document.body.appendChild(mdd);
+
+            function posMdd() {
+                var r = mInput.getBoundingClientRect();
+                mdd.style.top   = (r.bottom + 4) + 'px';
+                mdd.style.left  = r.left + 'px';
+                mdd.style.width = r.width + 'px';
+            }
+
+            function buildMItem(item) {
+                var div = document.createElement('div');
+                div.className = 'px-4 py-3 hover:bg-green-50 cursor-pointer border-b border-gray-100 last:border-0';
+                var icon = item.type === 'province' ? '🗺️' : '📍';
+                var sub  = (item.name_en || '') + (item.province_name ? ' · ' + item.province_name : '');
+                div.innerHTML = '<div class="flex items-center gap-2"><span class="text-lg">' + icon + '</span>'
+                    + '<div><div class="font-medium text-gray-800 text-sm">' + item.name_th + '</div>'
+                    + (sub ? '<div class="text-xs text-gray-500">' + sub + '</div>' : '')
+                    + '</div></div>';
+                div.addEventListener('mousedown', function (e) { e.preventDefault(); });
+                div.addEventListener('click', function () {
+                    mInput.value = item.name_th;
+                    mdd.classList.add('hidden');
+                    closeMenu();
+                    if (typeof PanteeMap !== 'undefined' && item.lat && item.lng) {
+                        if (item.type === 'province') {
+                            PanteeMap.flyTo(item.lat, item.lng, item.zoom || 11);
+                            PanteeMap.loadPOI(item.slug);
+                        } else {
+                            PanteeMap.flyTo(item.lat, item.lng, 15);
+                            if (PanteeMap.searchMarker) PanteeMap.map.removeLayer(PanteeMap.searchMarker);
+                            PanteeMap.searchMarker = L.marker([item.lat, item.lng])
+                                .bindPopup('<b>' + item.name_th + '</b>' + (item.name_en ? '<br>' + item.name_en : ''))
+                                .addTo(PanteeMap.map)
+                                .openPopup();
+                        }
+                    } else if (item.type === 'province' && item.slug) {
+                        window.location.href = '/province/' + item.slug;
+                    } else if (item.id) {
+                        window.location.href = '/place/' + item.id;
+                    }
+                });
+                return div;
+            }
+
+            var mDebounce;
+            mInput.addEventListener('input', function () {
+                clearTimeout(mDebounce);
+                var q = mInput.value.trim();
+                if (q.length < 2) { mdd.classList.add('hidden'); return; }
+                mDebounce = setTimeout(function () {
+                    fetch('/api/search.php?q=' + encodeURIComponent(q))
+                        .then(function (r) { return r.json(); })
+                        .then(function (data) {
+                            mdd.innerHTML = '';
+                            if (!data.success || !data.data.length) {
+                                mdd.innerHTML = '<div class="px-4 py-3 text-sm text-gray-400 text-center">ไม่พบผลลัพธ์</div>';
+                            } else {
+                                data.data.forEach(function (item) { mdd.appendChild(buildMItem(item)); });
+                            }
+                            posMdd();
+                            mdd.classList.remove('hidden');
+                        })
+                        .catch(function () { mdd.classList.add('hidden'); });
+                }, 300);
+            });
+
             mInput.addEventListener('keydown', function (e) {
-                if (e.key === 'Enter') {
+                var items  = mdd.querySelectorAll('.cursor-pointer');
+                var active = mdd.querySelector('.bg-green-100');
+                var idx    = Array.from(items).indexOf(active);
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (active) active.classList.remove('bg-green-100');
+                    items[(idx + 1) % items.length]?.classList.add('bg-green-100');
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (active) active.classList.remove('bg-green-100');
+                    items[(idx - 1 + items.length) % items.length]?.classList.add('bg-green-100');
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    var a = mdd.querySelector('.bg-green-100');
+                    if (a) { a.click(); return; }
                     var q = mInput.value.trim();
                     if (q) window.location.href = '/search?q=' + encodeURIComponent(q);
+                } else if (e.key === 'Escape') {
+                    mdd.classList.add('hidden');
                 }
             });
+
+            mInput.addEventListener('blur', function () {
+                setTimeout(function () { mdd.classList.add('hidden'); }, 150);
+            });
+
+            window.addEventListener('resize', function () {
+                if (!mdd.classList.contains('hidden')) posMdd();
+            }, { passive: true });
         }
 
         // ── 6. Desktop search: autocomplete via inline fetch ──────────────
@@ -157,11 +252,18 @@ $footer_inline  = $footer_inline  ?? '';
                                 div.addEventListener('click', function () {
                                     dInput.value = item.name_th;
                                     dd.classList.add('hidden');
-                                    // Fly map if on homepage
                                     if (typeof PanteeMap !== 'undefined' && item.lat && item.lng) {
-                                        var zoom = item.type === 'province' ? (item.zoom || 11) : 14;
-                                        PanteeMap.flyTo(item.lat, item.lng, zoom);
-                                        if (item.type === 'province') PanteeMap.loadPOI(item.slug);
+                                        if (item.type === 'province') {
+                                            PanteeMap.flyTo(item.lat, item.lng, item.zoom || 11);
+                                            PanteeMap.loadPOI(item.slug);
+                                        } else {
+                                            PanteeMap.flyTo(item.lat, item.lng, 15);
+                                            if (PanteeMap.searchMarker) PanteeMap.map.removeLayer(PanteeMap.searchMarker);
+                                            PanteeMap.searchMarker = L.marker([item.lat, item.lng])
+                                                .bindPopup('<b>' + item.name_th + '</b>' + (item.name_en ? '<br>' + item.name_en : ''))
+                                                .addTo(PanteeMap.map)
+                                                .openPopup();
+                                        }
                                     } else if (item.type === 'province' && item.slug) {
                                         window.location.href = '/province/' + item.slug;
                                     } else if (item.id) {

@@ -80,7 +80,10 @@ $json_ld = [
     ]),
 ];
 
-$extra_head = '<style>#prov-map{height:55vh;min-height:280px;width:100%;}</style>';
+$extra_head = '<style>
+    #prov-map{height:40vh;min-height:200px;width:100%;}
+    @media(min-width:768px){#prov-map{height:100%;min-height:0;}}
+</style>';
 
 // ---- Map JS (executes after Leaflet loads in footer.php) ----
 $footer_inline  = 'const PROVINCE_LAT='  . json_encode((float)$province['lat'])                         . ';'
@@ -269,33 +272,48 @@ EVTJS;
 
 require_once '../includes/head.php';
 ?>
-<body class="bg-gray-50">
+<body class="bg-gray-50 md:overflow-hidden">
 
-    <!-- Province header -->
-    <div class="bg-white border-b">
-        <div class="max-w-5xl mx-auto px-4 py-5">
-            <nav aria-label="breadcrumb" class="text-xs text-gray-400 mb-2 flex items-center gap-1">
-                <a href="/" class="hover:text-green-600">หน้าแรก</a>
-                <span aria-hidden="true">›</span>
-                <span class="text-gray-600"><?= htmlspecialchars($province['name_th']) ?></span>
-            </nav>
-            <h1 class="text-2xl font-bold text-gray-800">
-                แผนที่<?= htmlspecialchars($province['name_th']) ?>
-            </h1>
-            <p class="text-sm text-gray-500 mt-1">
-                <?= htmlspecialchars($province['name_en']) ?>
-                · <?= $total_count ?> สถานที่
-                <?php if (!empty($province['region'])): ?>
-                · <span class="text-green-600"><?= htmlspecialchars($province['region']) ?></span>
-                <?php endif; ?>
-            </p>
-        </div>
-    </div>
+    <!-- Split container: flex row on desktop, stack on mobile -->
+    <div class="md:flex md:h-[calc(100vh-56px)]">
 
-    <!-- Category filter strip (sticky below navbar) -->
-    <div class="bg-white border-b sticky top-0 z-[890] overflow-x-auto">
-        <div class="flex gap-1.5 px-3 py-2 min-w-max">
+        <!-- LEFT panel: province header + category filter + map (60%) -->
+        <div class="md:w-[60%] md:flex-shrink-0 md:flex md:flex-col md:overflow-hidden">
+
+            <!-- Province header -->
+            <div class="bg-white border-b flex-shrink-0">
+                <div class="px-4 py-4">
+                    <nav aria-label="breadcrumb" class="text-xs text-gray-400 mb-1.5 flex items-center gap-1">
+                        <a href="/" class="hover:text-green-600">หน้าแรก</a>
+                        <span aria-hidden="true">›</span>
+                        <span class="text-gray-600"><?= htmlspecialchars($province['name_th']) ?></span>
+                    </nav>
+                    <h1 class="text-xl font-bold text-gray-800">
+                        แผนที่<?= htmlspecialchars($province['name_th']) ?>
+                    </h1>
+                    <p class="text-sm text-gray-500 mt-0.5">
+                        <?= htmlspecialchars($province['name_en']) ?>
+                        · <?= $total_count ?> สถานที่
+                        <?php if (!empty($province['region'])): ?>
+                        · <span class="text-green-600"><?= htmlspecialchars($province['region']) ?></span>
+                        <?php endif; ?>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Category filter strip -->
             <?php
+            $category_counts = [];
+            $rows = db_query(
+                "SELECT category, COUNT(*) as cnt FROM places
+                 WHERE province_slug = :slug AND status = 'active'
+                 GROUP BY category",
+                [':slug' => $province['slug']]
+            );
+            foreach ($rows as $r) {
+                $category_counts[$r['category']] = (int)$r['cnt'];
+            }
+            $total_count_all = array_sum($category_counts);
             $filters = [
                 ''           => 'ทั้งหมด',
                 'temple'     => '🛕 วัด',
@@ -312,90 +330,131 @@ require_once '../includes/head.php';
                 'hospital'   => '🏥 โรงพยาบาล',
                 'transport'  => '🚌 ขนส่ง',
             ];
-            foreach ($filters as $cat => $label):
             ?>
-            <button data-category="<?= htmlspecialchars($cat) ?>"
-                    class="prov-cat-btn flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium
-                           shadow-sm transition whitespace-nowrap
-                           <?= $cat === '' ? 'bg-green-500 text-white shadow-md' : 'bg-white text-gray-600' ?>">
-                <?= $label ?>
-            </button>
-            <?php endforeach; ?>
-        </div>
-    </div>
-
-    <!-- Map -->
-    <div id="prov-map" class="border-b"></div>
-
-    <!-- Ad: below map -->
-    <?php if (($ad = adsense_unit('2345678901')) !== ''): ?>
-    <div class="max-w-5xl mx-auto px-4 py-2"><?= $ad ?></div>
-    <?php endif; ?>
-
-    <!-- POI list -->
-    <div class="max-w-5xl mx-auto px-4 py-6">
-        <?php if ($total_count === 0): ?>
-        <p class="text-gray-400 text-center py-16">ยังไม่มีสถานที่ในจังหวัดนี้</p>
-        <?php else: ?>
-        <h2 class="text-lg font-semibold text-gray-700 mb-4">
-            สถานที่ท่องเที่ยวใน<?= htmlspecialchars($province['name_th']) ?>
-        </h2>
-        <div id="poi-grid" data-offset="20" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <?php foreach ($places as $place): ?>
-            <a href="/place/<?= (int)$place['id'] ?>"
-               data-category="<?= htmlspecialchars($place['category']) ?>"
-               class="poi-card bg-white rounded-xl shadow-sm p-4 hover:shadow-md transition
-                      flex items-start gap-3 group">
-                <span class="text-2xl flex-shrink-0 leading-none mt-0.5">
-                    <?= match($place['category']) {
-                        'temple'     => '🛕',
-                        'beach'      => '🏖️',
-                        'nature'     => '🌿',
-                        'market'     => '🛒',
-                        'hotel'      => '🏨',
-                        'restaurant' => '🍜',
-                        'museum'     => '🏛️',
-                        'waterfall'  => '💧',
-                        'island'     => '🏝️',
-                        default      => '📍',
-                    } ?>
-                </span>
-                <div class="min-w-0">
-                    <h3 class="font-medium text-gray-800 truncate group-hover:text-green-700 transition">
-                        <?= htmlspecialchars($place['name_th']) ?>
-                    </h3>
-                    <?php if (!empty($place['name_en'])): ?>
-                    <p class="text-xs text-gray-400 truncate mt-0.5">
-                        <?= htmlspecialchars($place['name_en']) ?>
-                    </p>
-                    <?php endif; ?>
-                    <?php if ((int)$place['price_thb'] > 0): ?>
-                    <p class="text-xs text-green-600 mt-1">฿<?= number_format((int)$place['price_thb']) ?></p>
-                    <?php else: ?>
-                    <p class="text-xs text-gray-400 mt-1">ฟรี</p>
-                    <?php endif; ?>
+            <div class="bg-white border-b flex-shrink-0 overflow-x-auto">
+                <div class="flex flex-nowrap md:flex-wrap gap-1.5 px-3 py-2.5 min-w-max md:min-w-0">
+                    <?php foreach ($filters as $cat => $label):
+                        $count = ($cat === '') ? $total_count_all : ($category_counts[$cat] ?? 0);
+                        $active = $cat === '';
+                    ?>
+                    <button data-category="<?= htmlspecialchars($cat) ?>"
+                            class="prov-cat-btn flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium
+                                   border transition whitespace-nowrap
+                                   <?= $active
+                                       ? 'bg-green-500 text-white border-green-500'
+                                       : 'bg-white text-green-600 border-green-500 hover:bg-green-50' ?>">
+                        <?= $label ?> (<?= $count ?>)
+                    </button>
+                    <?php endforeach; ?>
                 </div>
-            </a>
-            <?php endforeach; ?>
-        </div>
-        <!-- Loading spinner (IntersectionObserver target) -->
-        <div id="poi-spinner" class="flex justify-center py-6">
-            <div class="w-6 h-6 border-2 border-green-500 border-t-transparent rounded-full animate-spin"></div>
-        </div>
-        <!-- Done message -->
-        <p id="poi-done" class="text-center text-sm text-gray-400 py-4" style="display:none"></p>
-        <?php endif; ?>
-    </div>
+            </div>
 
-    <!-- Ad: below POI list -->
-    <?php if (($ad = adsense_unit('3456789012')) !== ''): ?>
-    <div class="max-w-5xl mx-auto px-4 py-2"><?= $ad ?></div>
-    <?php endif; ?>
+            <!-- Map — 40vh on mobile, fills remaining flex height on desktop -->
+            <div id="prov-map" class="border-b md:flex-1 md:min-h-0"></div>
 
-    <!-- TAT Events — hidden until JS confirms there are events to show -->
-    <div id="tat-events" class="max-w-5xl mx-auto px-4 pb-8" style="display:none">
-        <h2 class="text-lg font-semibold text-gray-700 mb-4">กิจกรรมและเทศกาล</h2>
-        <div id="tat-events-list" class="space-y-3"></div>
-    </div>
+        </div><!-- /LEFT panel -->
+
+        <!-- RIGHT panel: POI list (40%) — scrollable on desktop -->
+        <div class="md:w-[40%] md:overflow-y-auto md:border-l bg-gray-50">
+
+            <!-- Ad: top of right panel -->
+            <?php if (($ad = adsense_unit('2345678901')) !== ''): ?>
+            <div class="px-4 py-2"><?= $ad ?></div>
+            <?php endif; ?>
+
+            <!-- POI list -->
+            <div class="px-4 py-6">
+                <?php if ($total_count === 0): ?>
+                <p class="text-gray-400 text-center py-16">ยังไม่มีสถานที่ในจังหวัดนี้</p>
+                <?php else: ?>
+                <h2 class="text-lg font-semibold text-gray-700 mb-4">
+                    สถานที่ท่องเที่ยวใน<?= htmlspecialchars($province['name_th']) ?>
+                </h2>
+                <div id="poi-grid" data-offset="20" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 xl:grid-cols-2 gap-4">
+                    <?php
+                    $cat_color = [
+                        'temple'=>'#C0392B','beach'=>'#2980B9','nature'=>'#27AE60',
+                        'market'=>'#E67E22','hotel'=>'#8E44AD','restaurant'=>'#F39C12',
+                        'museum'=>'#16A085','waterfall'=>'#2471A3','island'=>'#1ABC9C',
+                        'shopping'=>'#E91E63','airport'=>'#607D8B','hospital'=>'#F44336',
+                        'transport'=>'#795548','other'=>'#9E9E9E',
+                    ];
+                    $cat_emoji = [
+                        'temple'=>'🛕','beach'=>'🏖️','nature'=>'🌿','market'=>'🛒',
+                        'hotel'=>'🏨','restaurant'=>'🍜','museum'=>'🏛️','waterfall'=>'💧',
+                        'island'=>'🏝️','shopping'=>'🛍️','airport'=>'✈️','hospital'=>'🏥',
+                        'transport'=>'🚌','other'=>'📍',
+                    ];
+                    $cat_label = [
+                        'temple'=>'วัด','beach'=>'ชายหาด','nature'=>'ธรรมชาติ',
+                        'market'=>'ตลาด','hotel'=>'โรงแรม','restaurant'=>'ร้านอาหาร',
+                        'museum'=>'พิพิธภัณฑ์','waterfall'=>'น้ำตก','island'=>'เกาะ',
+                        'shopping'=>'ห้าง','airport'=>'สนามบิน','hospital'=>'โรงพยาบาล',
+                        'transport'=>'ขนส่ง','other'=>'สถานที่',
+                    ];
+                    foreach ($places as $place):
+                        $cat   = $place['category'];
+                        $color = $cat_color[$cat] ?? '#9E9E9E';
+                        $emoji = $cat_emoji[$cat] ?? '📍';
+                        $label = $cat_label[$cat] ?? 'สถานที่';
+                    ?>
+                    <a href="/place/<?= (int)$place['id'] ?>"
+                       data-category="<?= htmlspecialchars($cat) ?>"
+                       class="poi-card block bg-white rounded-xl shadow-sm border-l-4
+                              hover:shadow-md hover:scale-[1.01] transition-all duration-200 overflow-hidden"
+                       style="border-left-color:<?= $color ?>">
+                        <div class="p-4">
+                            <div class="flex justify-end mb-2">
+                                <span class="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full"
+                                      style="background-color:<?= $color ?>22;color:<?= $color ?>">
+                                    <?= $emoji ?> <?= htmlspecialchars($label) ?>
+                                </span>
+                            </div>
+                            <h3 class="font-semibold text-gray-900 text-sm leading-snug line-clamp-2">
+                                <?= htmlspecialchars($place['name_th']) ?>
+                            </h3>
+                            <?php if (!empty($place['name_en'])): ?>
+                            <p class="text-xs text-gray-400 truncate mt-0.5">
+                                <?= htmlspecialchars($place['name_en']) ?>
+                            </p>
+                            <?php endif; ?>
+                            <div class="flex items-center mt-2">
+                                <?php if ((int)$place['price_thb'] > 0): ?>
+                                <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-orange-50 text-orange-600">
+                                    ฿<?= number_format((int)$place['price_thb']) ?>
+                                </span>
+                                <?php else: ?>
+                                <span class="text-xs font-medium px-2 py-0.5 rounded-full bg-green-50 text-green-700">
+                                    ฟรี
+                                </span>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </a>
+                    <?php endforeach; ?>
+                </div>
+                <!-- Loading spinner (IntersectionObserver target) -->
+                <div id="poi-spinner" class="flex justify-center py-6">
+                    <div class="w-6 h-6 border-2 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+                <!-- Done message -->
+                <p id="poi-done" class="text-center text-sm text-gray-400 py-4" style="display:none"></p>
+                <?php endif; ?>
+            </div>
+
+            <!-- Ad: below POI list -->
+            <?php if (($ad = adsense_unit('3456789012')) !== ''): ?>
+            <div class="px-4 py-2"><?= $ad ?></div>
+            <?php endif; ?>
+
+            <!-- TAT Events — hidden until JS confirms there are events to show -->
+            <div id="tat-events" class="px-4 pb-8" style="display:none">
+                <h2 class="text-lg font-semibold text-gray-700 mb-4">กิจกรรมและเทศกาล</h2>
+                <div id="tat-events-list" class="space-y-3"></div>
+            </div>
+
+        </div><!-- /RIGHT panel -->
+
+    </div><!-- /Split container -->
 
 <?php require_once '../includes/footer.php';

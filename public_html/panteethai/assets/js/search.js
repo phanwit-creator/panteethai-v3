@@ -95,13 +95,17 @@ const PanteeSearch = {
         this.input.value = item.name_th;
         this.hide();
 
-        // Fly map ไปที่ผลลัพธ์ (guard: PanteeMap ไม่ถูก load บนทุกหน้า)
         if (typeof PanteeMap !== 'undefined' && item.lat && item.lng) {
-            const zoom = item.type === 'province' ? (item.zoom || 11) : 14;
-            PanteeMap.flyTo(item.lat, item.lng, zoom);
-
             if (item.type === 'province') {
+                PanteeMap.flyTo(item.lat, item.lng, item.zoom || 11);
                 PanteeMap.loadPOI(item.slug);
+            } else {
+                PanteeMap.flyTo(item.lat, item.lng, 15);
+                if (PanteeMap.searchMarker) PanteeMap.map.removeLayer(PanteeMap.searchMarker);
+                PanteeMap.searchMarker = L.marker([item.lat, item.lng])
+                    .bindPopup('<b>' + item.name_th + '</b>' + (item.name_en ? '<br>' + item.name_en : ''))
+                    .addTo(PanteeMap.map)
+                    .openPopup();
             }
         }
     },
